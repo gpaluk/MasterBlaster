@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "metatile.h"
 
+//
 typedef struct Entity {
     MetaTile* metatile[32];
     unsigned char frameRate;
