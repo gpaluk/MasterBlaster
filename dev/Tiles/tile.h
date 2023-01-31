@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+//
 /**
  * @param unsigned char id;
  * @param bool collidable;

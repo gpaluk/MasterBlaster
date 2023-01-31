@@ -8,6 +8,7 @@ unsigned char volume_atenuation;
 
 Entity* entity;
 
+//
 void loadGraphics2vram(void)
 {
   /* clear VRAM */
