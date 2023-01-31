@@ -1,0 +1,1567 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.2.0 #13081 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl ___SMS__SDSC_signature
+                                     12 	.globl ___SMS__SDSC_descr
+                                     13 	.globl ___SMS__SDSC_name
+                                     14 	.globl ___SMS__SDSC_author
+                                     15 	.globl ___SMS__SEGA_signature
+                                     16 	.globl _main
+                                     17 	.globl _loadGraphics2vram
+                                     18 	.globl _Entity_Draw
+                                     19 	.globl _Entity_GetFrameRate
+                                     20 	.globl _Entity_GetCurrentFrame
+                                     21 	.globl _Entity_Update
+                                     22 	.globl _Entity_Delete
+                                     23 	.globl _Entity_Create
+                                     24 	.globl _MetaTile_Draw
+                                     25 	.globl _MetaTile_Create
+                                     26 	.globl _DeleteTile
+                                     27 	.globl _CreateTile
+                                     28 	.globl _Tile_Update
+                                     29 	.globl _SMS_VRAMmemsetW
+                                     30 	.globl _SMS_VRAMmemcpy
+                                     31 	.globl _SMS_loadSpritePalette
+                                     32 	.globl _SMS_loadBGPalette
+                                     33 	.globl _SMS_copySpritestoSAT
+                                     34 	.globl _SMS_finalizeSprites
+                                     35 	.globl _SMS_initSprites
+                                     36 	.globl _SMS_loadTileMapArea
+                                     37 	.globl _SMS_loadPSGaidencompressedTilesatAddr
+                                     38 	.globl _SMS_waitForVBlank
+                                     39 	.globl _SMS_VDPturnOnFeature
+                                     40 	.globl _free
+                                     41 	.globl _malloc
+                                     42 	.globl _Player1Init
+                                     43 	.globl _checkgamepause
+                                     44 	.globl _InitConsole
+                                     45 	.globl _InterruptHandler
+                                     46 	.globl _PSGSFXFrame
+                                     47 	.globl _PSGFrame
+                                     48 	.globl _PSGSFXGetStatus
+                                     49 	.globl _PSGPlayNoRepeat
+                                     50 	.globl _PSGPlay
+                                     51 	.globl _entity
+                                     52 	.globl _volume_atenuation
+                                     53 	.globl _frame_counter
+                                     54 	.globl _SMS_SRAM
+                                     55 	.globl _SRAM_bank_to_be_mapped_on_slot2
+                                     56 	.globl _ROM_bank_to_be_mapped_on_slot0
+                                     57 	.globl _ROM_bank_to_be_mapped_on_slot1
+                                     58 	.globl _ROM_bank_to_be_mapped_on_slot2
+                                     59 	.globl _player_direction_offset
+                                     60 	.globl _player_direction
+                                     61 	.globl _player_current_frame
+                                     62 	.globl _player_y
+                                     63 	.globl _player_x
+                                     64 	.globl _sprite_size
+                                     65 	.globl _gamepause
+                                     66 	.globl _numinterrupts
+                                     67 	.globl _Player1Update
+                                     68 	.globl _Player1UpdatePosition
+                                     69 	.globl _Player1UpdateDraw
+                                     70 ;--------------------------------------------------------
+                                     71 ; special function registers
+                                     72 ;--------------------------------------------------------
+                                     73 ;--------------------------------------------------------
+                                     74 ; ram data
+                                     75 ;--------------------------------------------------------
+                                     76 	.area _DATA
+      000000                         77 _numinterrupts::
+      000000                         78 	.ds 1
+      000001                         79 _gamepause::
+      000001                         80 	.ds 1
+      000002                         81 _sprite_size::
+      000002                         82 	.ds 2
+      000004                         83 _player_x::
+      000004                         84 	.ds 1
+      000005                         85 _player_y::
+      000005                         86 	.ds 1
+      000006                         87 _player_current_frame::
+      000006                         88 	.ds 1
+      000007                         89 _player_direction::
+      000007                         90 	.ds 1
+      000008                         91 _player_direction_offset::
+      000008                         92 	.ds 1
+                           00FFFF    93 _ROM_bank_to_be_mapped_on_slot2	=	0xffff
+                           00FFFE    94 _ROM_bank_to_be_mapped_on_slot1	=	0xfffe
+                           00FFFD    95 _ROM_bank_to_be_mapped_on_slot0	=	0xfffd
+                           00FFFC    96 _SRAM_bank_to_be_mapped_on_slot2	=	0xfffc
+                           008000    97 _SMS_SRAM	=	0x8000
+      000009                         98 _frame_counter::
+      000009                         99 	.ds 1
+      00000A                        100 _volume_atenuation::
+      00000A                        101 	.ds 1
+      00000B                        102 _entity::
+      00000B                        103 	.ds 2
+                                    104 ;--------------------------------------------------------
+                                    105 ; ram data
+                                    106 ;--------------------------------------------------------
+                                    107 	.area _INITIALIZED
+                                    108 ;--------------------------------------------------------
+                                    109 ; absolute external ram data
+                                    110 ;--------------------------------------------------------
+                                    111 	.area _DABS (ABS)
+                                    112 ;--------------------------------------------------------
+                                    113 ; global & static initialisations
+                                    114 ;--------------------------------------------------------
+                                    115 	.area _HOME
+                                    116 	.area _GSINIT
+                                    117 	.area _GSFINAL
+                                    118 	.area _GSINIT
+                                    119 ;--------------------------------------------------------
+                                    120 ; Home
+                                    121 ;--------------------------------------------------------
+                                    122 	.area _HOME
+                                    123 	.area _HOME
+                                    124 ;--------------------------------------------------------
+                                    125 ; code
+                                    126 ;--------------------------------------------------------
+                                    127 	.area _CODE
+                                    128 ;Core\funcs.h:6: void InterruptHandler(void)
+                                    129 ;	---------------------------------
+                                    130 ; Function InterruptHandler
+                                    131 ; ---------------------------------
+      000000                        132 _InterruptHandler::
+                                    133 ;Core\funcs.h:9: }
+      000000 C9               [10]  134 	ret
+                                    135 ;Core\funcs.h:11: void InitConsole(void)
+                                    136 ;	---------------------------------
+                                    137 ; Function InitConsole
+                                    138 ; ---------------------------------
+      000001                        139 _InitConsole::
+                                    140 ;Core\funcs.h:14: SMS_init();
+      000001 CDr00r00         [17]  141 	call	_SMS_init
+                                    142 ;Core\funcs.h:17: SMS_getKeysStatus();
+      000004 CDr00r00         [17]  143 	call	_SMS_getKeysStatus
+                                    144 ;Core\funcs.h:20: SMS_setLineInterruptHandler(&InterruptHandler);
+      000007 21r00r00         [10]  145 	ld	hl, #_InterruptHandler
+      00000A CDr00r00         [17]  146 	call	_SMS_setLineInterruptHandler
+                                    147 ;Core\funcs.h:21: SMS_setLineCounter (192);
+      00000D 2E C0            [ 7]  148 	ld	l, #0xc0
+                                    149 ;	spillPairReg hl
+                                    150 ;	spillPairReg hl
+      00000F CDr00r00         [17]  151 	call	_SMS_setLineCounter
+                                    152 ;Core\funcs.h:22: SMS_enableLineInterrupt();
+      000012 21 10 00         [10]  153 	ld	hl, #0x0010
+      000015 CDr00r00         [17]  154 	call	_SMS_VDPturnOnFeature
+                                    155 ;Core\funcs.h:25: SMS_VDPturnOnFeature(VDPFEATURE_LEFTCOLBLANK);
+      000018 21 20 00         [10]  156 	ld	hl, #0x0020
+                                    157 ;Core\funcs.h:26: }
+      00001B C3r00r00         [10]  158 	jp	_SMS_VDPturnOnFeature
+                                    159 ;Core\funcs.h:28: void checkgamepause()
+                                    160 ;	---------------------------------
+                                    161 ; Function checkgamepause
+                                    162 ; ---------------------------------
+      00001E                        163 _checkgamepause::
+                                    164 ;Core\funcs.h:30: if(SMS_queryPauseRequested())
+      00001E CDr00r00         [17]  165 	call	_SMS_queryPauseRequested
+      000021 CB 47            [ 8]  166 	bit	0,a
+      000023 C8               [11]  167 	ret	Z
+                                    168 ;Core\funcs.h:32: SMS_resetPauseRequest();
+      000024 CDr00r00         [17]  169 	call	_SMS_resetPauseRequest
+                                    170 ;Core\funcs.h:33: gamepause=1-gamepause;
+      000027 3Ar01r00         [13]  171 	ld	a, (_gamepause+0)
+      00002A 4F               [ 4]  172 	ld	c, a
+      00002B 21r01r00         [10]  173 	ld	hl, #_gamepause
+      00002E 3E 01            [ 7]  174 	ld	a, #0x01
+      000030 91               [ 4]  175 	sub	a, c
+      000031 77               [ 7]  176 	ld	(hl), a
+                                    177 ;Core\funcs.h:34: if(gamepause==1)
+      000032 3Ar01r00         [13]  178 	ld	a, (_gamepause+0)
+      000035 3D               [ 4]  179 	dec	a
+      000036 20 06            [12]  180 	jr	NZ, 00102$
+                                    181 ;Core\funcs.h:35: PSGPlayNoRepeat(pause_psg);
+      000038 21r00r00         [10]  182 	ld	hl, #_pause_psg
+      00003B C3r00r00         [10]  183 	jp	_PSGPlayNoRepeat
+      00003E                        184 00102$:
+                                    185 ;Core\funcs.h:37: PSGPlay(music_psg);
+      00003E 21r00r00         [10]  186 	ld	hl, #_music_psg
+                                    187 ;Core\funcs.h:39: }
+      000041 C3r00r00         [10]  188 	jp	_PSGPlay
+                                    189 ;Players/players.h:26: void Player1Init()
+                                    190 ;	---------------------------------
+                                    191 ; Function Player1Init
+                                    192 ; ---------------------------------
+      000044                        193 _Player1Init::
+                                    194 ;Players/players.h:28: sprite_size = 32*6*12;
+      000044 21 00 09         [10]  195 	ld	hl, #0x0900
+      000047 22r02r00         [16]  196 	ld	(_sprite_size), hl
+                                    197 ;Players/players.h:29: player_x = 128-8;
+      00004A 21r04r00         [10]  198 	ld	hl, #_player_x
+      00004D 36 78            [10]  199 	ld	(hl), #0x78
+                                    200 ;Players/players.h:30: player_y = 96-12;
+      00004F 21r05r00         [10]  201 	ld	hl, #_player_y
+      000052 36 54            [10]  202 	ld	(hl), #0x54
+                                    203 ;Players/players.h:31: player_direction = DOWN;
+      000054 21r07r00         [10]  204 	ld	hl, #_player_direction
+      000057 36 01            [10]  205 	ld	(hl), #0x01
+                                    206 ;Players/players.h:32: player_current_frame = 0;
+      000059 21r06r00         [10]  207 	ld	hl, #_player_current_frame
+      00005C 36 00            [10]  208 	ld	(hl), #0x00
+                                    209 ;Players/players.h:33: player_direction_offset = 0;
+      00005E 21r08r00         [10]  210 	ld	hl, #_player_direction_offset
+      000061 36 00            [10]  211 	ld	(hl), #0x00
+                                    212 ;Players/players.h:34: }
+      000063 C9               [10]  213 	ret
+                                    214 ;Players/players.h:36: void Player1Update(unsigned char time)
+                                    215 ;	---------------------------------
+                                    216 ; Function Player1Update
+                                    217 ; ---------------------------------
+      000064                        218 _Player1Update::
+      000064 4F               [ 4]  219 	ld	c, a
+                                    220 ;Players/players.h:38: Player1UpdatePosition();
+      000065 C5               [11]  221 	push	bc
+      000066 CDr6Er00         [17]  222 	call	_Player1UpdatePosition
+      000069 C1               [10]  223 	pop	bc
+                                    224 ;Players/players.h:39: Player1UpdateDraw(time);
+      00006A 79               [ 4]  225 	ld	a, c
+                                    226 ;Players/players.h:40: }
+      00006B C3r2Fr01         [10]  227 	jp	_Player1UpdateDraw
+                                    228 ;Players/players.h:42: void Player1UpdatePosition()
+                                    229 ;	---------------------------------
+                                    230 ; Function Player1UpdatePosition
+                                    231 ; ---------------------------------
+      00006E                        232 _Player1UpdatePosition::
+                                    233 ;Players/players.h:44: if(SMS_getKeysStatus() & PORT_A_KEY_UP)
+      00006E CDr00r00         [17]  234 	call	_SMS_getKeysStatus
+      000071 CB 43            [ 8]  235 	bit	0, e
+      000073 28 27            [12]  236 	jr	Z, 00122$
+                                    237 ;Players/players.h:46: if(player_direction != UP)
+      000075 3Ar07r00         [13]  238 	ld	a, (_player_direction+0)
+      000078 B7               [ 4]  239 	or	a, a
+      000079 28 1C            [12]  240 	jr	Z, 00102$
+                                    241 ;Players/players.h:48: SMS_loadTiles(spritetiles_up_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+      00007B 2Ar02r00         [16]  242 	ld	hl, (_sprite_size)
+      00007E E5               [11]  243 	push	hl
+      00007F 11r00r00         [10]  244 	ld	de, #_spritetiles_up_bin
+      000082 21 00 60         [10]  245 	ld	hl, #0x6000
+      000085 CDr00r00         [17]  246 	call	_SMS_VRAMmemcpy
+                                    247 ;Players/players.h:49: player_direction = UP;
+      000088 21r07r00         [10]  248 	ld	hl, #_player_direction
+      00008B 36 00            [10]  249 	ld	(hl), #0x00
+                                    250 ;Players/players.h:50: player_current_frame = 0;
+      00008D 21r06r00         [10]  251 	ld	hl, #_player_current_frame
+      000090 36 00            [10]  252 	ld	(hl), #0x00
+                                    253 ;Players/players.h:51: player_direction_offset = 0;
+      000092 21r08r00         [10]  254 	ld	hl, #_player_direction_offset
+      000095 36 00            [10]  255 	ld	(hl), #0x00
+      000097                        256 00102$:
+                                    257 ;Players/players.h:53: player_y--;
+      000097 21r05r00         [10]  258 	ld	hl, #_player_y
+      00009A 35               [11]  259 	dec	(hl)
+      00009B C9               [10]  260 	ret
+      00009C                        261 00122$:
+                                    262 ;Players/players.h:55: else if(SMS_getKeysStatus() & PORT_A_KEY_DOWN)
+      00009C CDr00r00         [17]  263 	call	_SMS_getKeysStatus
+      00009F CB 4B            [ 8]  264 	bit	1, e
+      0000A1 28 27            [12]  265 	jr	Z, 00119$
+                                    266 ;Players/players.h:57: if(player_direction != DOWN)
+      0000A3 3Ar07r00         [13]  267 	ld	a, (_player_direction+0)
+      0000A6 3D               [ 4]  268 	dec	a
+      0000A7 28 1C            [12]  269 	jr	Z, 00104$
+                                    270 ;Players/players.h:59: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+      0000A9 2Ar02r00         [16]  271 	ld	hl, (_sprite_size)
+      0000AC E5               [11]  272 	push	hl
+      0000AD 11r00r00         [10]  273 	ld	de, #_spritetiles_down_bin
+      0000B0 21 00 60         [10]  274 	ld	hl, #0x6000
+      0000B3 CDr00r00         [17]  275 	call	_SMS_VRAMmemcpy
+                                    276 ;Players/players.h:60: player_direction = DOWN;
+      0000B6 21r07r00         [10]  277 	ld	hl, #_player_direction
+      0000B9 36 01            [10]  278 	ld	(hl), #0x01
+                                    279 ;Players/players.h:61: player_current_frame = 0;
+      0000BB 21r06r00         [10]  280 	ld	hl, #_player_current_frame
+      0000BE 36 00            [10]  281 	ld	(hl), #0x00
+                                    282 ;Players/players.h:62: player_direction_offset = 0;
+      0000C0 21r08r00         [10]  283 	ld	hl, #_player_direction_offset
+      0000C3 36 00            [10]  284 	ld	(hl), #0x00
+      0000C5                        285 00104$:
+                                    286 ;Players/players.h:64: player_y++;
+      0000C5 21r05r00         [10]  287 	ld	hl, #_player_y
+      0000C8 34               [11]  288 	inc	(hl)
+      0000C9 C9               [10]  289 	ret
+      0000CA                        290 00119$:
+                                    291 ;Players/players.h:66: else if(SMS_getKeysStatus() & PORT_A_KEY_LEFT)
+      0000CA CDr00r00         [17]  292 	call	_SMS_getKeysStatus
+      0000CD CB 53            [ 8]  293 	bit	2, e
+      0000CF 28 2C            [12]  294 	jr	Z, 00116$
+                                    295 ;Players/players.h:68: if(player_direction != LEFT)
+                                    296 ;Players/players.h:70: if(player_direction != RIGHT)
+      0000D1 3Ar07r00         [13]  297 	ld	a,(_player_direction+0)
+      0000D4 FE 02            [ 7]  298 	cp	a,#0x02
+      0000D6 28 20            [12]  299 	jr	Z, 00108$
+      0000D8 D6 03            [ 7]  300 	sub	a, #0x03
+      0000DA 28 0D            [12]  301 	jr	Z, 00106$
+                                    302 ;Players/players.h:72: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+      0000DC 2Ar02r00         [16]  303 	ld	hl, (_sprite_size)
+      0000DF E5               [11]  304 	push	hl
+      0000E0 11r00r00         [10]  305 	ld	de, #_spritetiles_lr_bin
+      0000E3 21 00 60         [10]  306 	ld	hl, #0x6000
+      0000E6 CDr00r00         [17]  307 	call	_SMS_VRAMmemcpy
+      0000E9                        308 00106$:
+                                    309 ;Players/players.h:74: player_direction = LEFT;
+      0000E9 21r07r00         [10]  310 	ld	hl, #_player_direction
+      0000EC 36 02            [10]  311 	ld	(hl), #0x02
+                                    312 ;Players/players.h:75: player_current_frame = 0;
+      0000EE 21r06r00         [10]  313 	ld	hl, #_player_current_frame
+      0000F1 36 00            [10]  314 	ld	(hl), #0x00
+                                    315 ;Players/players.h:76: player_direction_offset = PLAYER_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS >> 1;
+      0000F3 21r08r00         [10]  316 	ld	hl, #_player_direction_offset
+      0000F6 36 0C            [10]  317 	ld	(hl), #0x0c
+      0000F8                        318 00108$:
+                                    319 ;Players/players.h:78: player_x--;
+      0000F8 21r04r00         [10]  320 	ld	hl, #_player_x
+      0000FB 35               [11]  321 	dec	(hl)
+      0000FC C9               [10]  322 	ret
+      0000FD                        323 00116$:
+                                    324 ;Players/players.h:80: else if(SMS_getKeysStatus() & PORT_A_KEY_RIGHT)
+      0000FD CDr00r00         [17]  325 	call	_SMS_getKeysStatus
+      000100 CB 5B            [ 8]  326 	bit	3, e
+      000102 C8               [11]  327 	ret	Z
+                                    328 ;Players/players.h:82: if(player_direction != RIGHT)
+                                    329 ;Players/players.h:84: if(player_direction != LEFT)
+      000103 3Ar07r00         [13]  330 	ld	a,(_player_direction+0)
+      000106 FE 03            [ 7]  331 	cp	a,#0x03
+      000108 28 20            [12]  332 	jr	Z, 00112$
+      00010A D6 02            [ 7]  333 	sub	a, #0x02
+      00010C 28 0D            [12]  334 	jr	Z, 00110$
+                                    335 ;Players/players.h:86: SMS_loadTiles(spritetiles_lr_bin, PLAYER1_SPRITE_POSITION, sprite_size);
+      00010E 2Ar02r00         [16]  336 	ld	hl, (_sprite_size)
+      000111 E5               [11]  337 	push	hl
+      000112 11r00r00         [10]  338 	ld	de, #_spritetiles_lr_bin
+      000115 21 00 60         [10]  339 	ld	hl, #0x6000
+      000118 CDr00r00         [17]  340 	call	_SMS_VRAMmemcpy
+      00011B                        341 00110$:
+                                    342 ;Players/players.h:88: player_direction = RIGHT;
+      00011B 21r07r00         [10]  343 	ld	hl, #_player_direction
+      00011E 36 03            [10]  344 	ld	(hl), #0x03
+                                    345 ;Players/players.h:89: player_current_frame = 0;
+      000120 21r06r00         [10]  346 	ld	hl, #_player_current_frame
+      000123 36 00            [10]  347 	ld	(hl), #0x00
+                                    348 ;Players/players.h:90: player_direction_offset = 0;
+      000125 21r08r00         [10]  349 	ld	hl, #_player_direction_offset
+      000128 36 00            [10]  350 	ld	(hl), #0x00
+      00012A                        351 00112$:
+                                    352 ;Players/players.h:92: player_x++;
+      00012A 21r04r00         [10]  353 	ld	hl, #_player_x
+      00012D 34               [11]  354 	inc	(hl)
+                                    355 ;Players/players.h:94: }
+      00012E C9               [10]  356 	ret
+                                    357 ;Players/players.h:96: void Player1UpdateDraw(unsigned char time)
+                                    358 ;	---------------------------------
+                                    359 ; Function Player1UpdateDraw
+                                    360 ; ---------------------------------
+      00012F                        361 _Player1UpdateDraw::
+      00012F DD E5            [15]  362 	push	ix
+      000131 DD 21 00 00      [14]  363 	ld	ix,#0
+      000135 DD 39            [15]  364 	add	ix,sp
+      000137 21 FA FF         [10]  365 	ld	hl, #-6
+      00013A 39               [11]  366 	add	hl, sp
+      00013B F9               [ 6]  367 	ld	sp, hl
+                                    368 ;Players/players.h:100: if((time%8) == 0) {
+      00013C E6 07            [ 7]  369 	and	a, #0x07
+      00013E 20 59            [12]  370 	jr	NZ, 00121$
+                                    371 ;Players/players.h:101: player_current_frame++;
+      000140 FD 21r06r00      [14]  372 	ld	iy, #_player_current_frame
+      000144 FD 34 00         [23]  373 	inc	0 (iy)
+                                    374 ;Players/players.h:103: if(player_direction == UP)
+      000147 3Ar07r00         [13]  375 	ld	a, (_player_direction+0)
+      00014A B7               [ 4]  376 	or	a, a
+      00014B 20 0E            [12]  377 	jr	NZ, 00118$
+                                    378 ;Players/players.h:105: if(player_current_frame == PLAYER_UD_NUMBER_FRAMES) {
+      00014D 3Ar06r00         [13]  379 	ld	a, (_player_current_frame+0)
+      000150 D6 06            [ 7]  380 	sub	a, #0x06
+      000152 20 45            [12]  381 	jr	NZ, 00121$
+                                    382 ;Players/players.h:106: player_current_frame = 0;
+      000154 FD 36 00 00      [19]  383 	ld	0 (iy), #0x00
+      000158 C3r99r01         [10]  384 	jp	00121$
+      00015B                        385 00118$:
+                                    386 ;Players/players.h:109: else if(player_direction == DOWN)
+      00015B 3Ar07r00         [13]  387 	ld	a, (_player_direction+0)
+      00015E 3D               [ 4]  388 	dec	a
+      00015F 20 0F            [12]  389 	jr	NZ, 00115$
+                                    390 ;Players/players.h:111: if(player_current_frame == PLAYER_UD_NUMBER_FRAMES) {
+      000161 3Ar06r00         [13]  391 	ld	a, (_player_current_frame+0)
+      000164 D6 06            [ 7]  392 	sub	a, #0x06
+      000166 20 31            [12]  393 	jr	NZ, 00121$
+                                    394 ;Players/players.h:112: player_current_frame = 0;
+      000168 21r06r00         [10]  395 	ld	hl, #_player_current_frame
+      00016B 36 00            [10]  396 	ld	(hl), #0x00
+      00016D C3r99r01         [10]  397 	jp	00121$
+      000170                        398 00115$:
+                                    399 ;Players/players.h:115: else if(player_direction == LEFT)
+      000170 3Ar07r00         [13]  400 	ld	a, (_player_direction+0)
+      000173 D6 02            [ 7]  401 	sub	a, #0x02
+      000175 20 0F            [12]  402 	jr	NZ, 00112$
+                                    403 ;Players/players.h:117: if(player_current_frame == PLAYER_LR_NUMBER_FRAMES) {
+      000177 3Ar06r00         [13]  404 	ld	a, (_player_current_frame+0)
+      00017A D6 06            [ 7]  405 	sub	a, #0x06
+      00017C 20 1B            [12]  406 	jr	NZ, 00121$
+                                    407 ;Players/players.h:118: player_current_frame = 0;
+      00017E 21r06r00         [10]  408 	ld	hl, #_player_current_frame
+      000181 36 00            [10]  409 	ld	(hl), #0x00
+      000183 C3r99r01         [10]  410 	jp	00121$
+      000186                        411 00112$:
+                                    412 ;Players/players.h:121: else if(player_direction == RIGHT)
+      000186 3Ar07r00         [13]  413 	ld	a, (_player_direction+0)
+      000189 D6 03            [ 7]  414 	sub	a, #0x03
+      00018B 20 0C            [12]  415 	jr	NZ, 00121$
+                                    416 ;Players/players.h:123: if(player_current_frame == PLAYER_LR_NUMBER_FRAMES) {
+      00018D 3Ar06r00         [13]  417 	ld	a, (_player_current_frame+0)
+      000190 D6 06            [ 7]  418 	sub	a, #0x06
+      000192 20 05            [12]  419 	jr	NZ, 00121$
+                                    420 ;Players/players.h:124: player_current_frame = 0;
+      000194 21r06r00         [10]  421 	ld	hl, #_player_current_frame
+      000197 36 00            [10]  422 	ld	(hl), #0x00
+      000199                        423 00121$:
+                                    424 ;Players/players.h:129: if(player_direction == UP || player_direction == DOWN)
+      000199 3Ar07r00         [13]  425 	ld	a, (_player_direction+0)
+      00019C B7               [ 4]  426 	or	a, a
+      00019D 28 07            [12]  427 	jr	Z, 00155$
+      00019F 3Ar07r00         [13]  428 	ld	a, (_player_direction+0)
+      0001A2 3D               [ 4]  429 	dec	a
+      0001A3 C2r23r02         [10]  430 	jp	NZ,00130$
+                                    431 ;Players/players.h:131: for(j=0; j<3; j++)
+      0001A6                        432 00155$:
+      0001A6 DD 36 FE 00      [19]  433 	ld	-2 (ix), #0x00
+                                    434 ;Players/players.h:133: for(i=0; i<2; i++) {
+      0001AA                        435 00153$:
+      0001AA DD 36 FF 00      [19]  436 	ld	-1 (ix), #0x00
+      0001AE                        437 00133$:
+                                    438 ;Players/players.h:134: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), PLAYER1_SPRITE_POSITION + player_direction_offset + player_current_frame * PLAYER_UD_NUMBER_TILES_BY_FRAME + PLAYER_UD_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+      0001AE 3Ar04r00         [13]  439 	ld	a, (_player_x+0)
+      0001B1 5F               [ 4]  440 	ld	e, a
+      0001B2 16 00            [ 7]  441 	ld	d, #0x00
+      0001B4 DD 4E FF         [19]  442 	ld	c, -1 (ix)
+      0001B7 06 00            [ 7]  443 	ld	b, #0x00
+      0001B9 69               [ 4]  444 	ld	l, c
+      0001BA 60               [ 4]  445 	ld	h, b
+      0001BB 29               [11]  446 	add	hl, hl
+      0001BC 29               [11]  447 	add	hl, hl
+      0001BD 29               [11]  448 	add	hl, hl
+      0001BE 19               [11]  449 	add	hl, de
+                                    450 ;	spillPairReg hl
+                                    451 ;	spillPairReg hl
+      0001BF DD 75 FD         [19]  452 	ld	-3 (ix), l
+      0001C2 DD 36 FC 00      [19]  453 	ld	-4 (ix), #0x00
+      0001C6 3Ar08r00         [13]  454 	ld	a, (_player_direction_offset+0)
+                                    455 ;	spillPairReg hl
+                                    456 ;	spillPairReg hl
+                                    457 ;	spillPairReg hl
+                                    458 ;	spillPairReg hl
+      0001C9 5F               [ 4]  459 	ld	e, a
+      0001CA AF               [ 4]  460 	xor	a, a
+      0001CB 3C               [ 4]  461 	inc	a
+      0001CC 57               [ 4]  462 	ld	d, a
+      0001CD 3Ar06r00         [13]  463 	ld	a, (_player_current_frame+0)
+      0001D0 6F               [ 4]  464 	ld	l, a
+                                    465 ;	spillPairReg hl
+                                    466 ;	spillPairReg hl
+      0001D1 26 00            [ 7]  467 	ld	h, #0x00
+                                    468 ;	spillPairReg hl
+                                    469 ;	spillPairReg hl
+      0001D3 29               [11]  470 	add	hl, hl
+      0001D4 19               [11]  471 	add	hl, de
+      0001D5 E5               [11]  472 	push	hl
+      0001D6 FD E1            [14]  473 	pop	iy
+      0001D8 DD 5E FE         [19]  474 	ld	e, -2 (ix)
+      0001DB 16 00            [ 7]  475 	ld	d, #0x00
+      0001DD D5               [11]  476 	push	de
+      0001DE 6B               [ 4]  477 	ld	l, e
+      0001DF 62               [ 4]  478 	ld	h, d
+      0001E0 29               [11]  479 	add	hl, hl
+      0001E1 19               [11]  480 	add	hl, de
+      0001E2 29               [11]  481 	add	hl, hl
+      0001E3 29               [11]  482 	add	hl, hl
+      0001E4 D1               [10]  483 	pop	de
+      0001E5 C5               [11]  484 	push	bc
+      0001E6 4D               [ 4]  485 	ld	c, l
+      0001E7 44               [ 4]  486 	ld	b, h
+      0001E8 FD 09            [15]  487 	add	iy, bc
+      0001EA C1               [10]  488 	pop	bc
+      0001EB FD E5            [15]  489 	push	iy
+      0001ED E1               [10]  490 	pop	hl
+      0001EE 09               [11]  491 	add	hl, bc
+      0001EF 26 00            [ 7]  492 	ld	h, #0x00
+                                    493 ;	spillPairReg hl
+                                    494 ;	spillPairReg hl
+      0001F1 DD 7E FC         [19]  495 	ld	a, -4 (ix)
+      0001F4 B5               [ 4]  496 	or	a, l
+      0001F5 4F               [ 4]  497 	ld	c, a
+      0001F6 DD 7E FD         [19]  498 	ld	a, -3 (ix)
+      0001F9 B4               [ 4]  499 	or	a, h
+      0001FA 47               [ 4]  500 	ld	b, a
+      0001FB 3Ar05r00         [13]  501 	ld	a, (_player_y+0)
+      0001FE 6F               [ 4]  502 	ld	l, a
+                                    503 ;	spillPairReg hl
+                                    504 ;	spillPairReg hl
+      0001FF 26 00            [ 7]  505 	ld	h, #0x00
+                                    506 ;	spillPairReg hl
+                                    507 ;	spillPairReg hl
+      000201 EB               [ 4]  508 	ex	de, hl
+      000202 29               [11]  509 	add	hl, hl
+      000203 29               [11]  510 	add	hl, hl
+      000204 29               [11]  511 	add	hl, hl
+      000205 EB               [ 4]  512 	ex	de, hl
+      000206 19               [11]  513 	add	hl, de
+      000207 59               [ 4]  514 	ld	e, c
+      000208 50               [ 4]  515 	ld	d, b
+      000209 CDr00r00         [17]  516 	call	_SMS_addSprite_f
+                                    517 ;Players/players.h:133: for(i=0; i<2; i++) {
+      00020C DD 34 FF         [23]  518 	inc	-1 (ix)
+      00020F DD 7E FF         [19]  519 	ld	a, -1 (ix)
+      000212 D6 02            [ 7]  520 	sub	a, #0x02
+      000214 38 98            [12]  521 	jr	C, 00133$
+                                    522 ;Players/players.h:131: for(j=0; j<3; j++)
+      000216 DD 34 FE         [23]  523 	inc	-2 (ix)
+      000219 DD 7E FE         [19]  524 	ld	a, -2 (ix)
+      00021C D6 03            [ 7]  525 	sub	a, #0x03
+      00021E 38 8A            [12]  526 	jr	C, 00153$
+      000220 C3rB4r02         [10]  527 	jp	00141$
+      000223                        528 00130$:
+                                    529 ;Players/players.h:138: else if(player_direction == LEFT || player_direction == RIGHT)
+      000223 3Ar07r00         [13]  530 	ld	a,(_player_direction+0)
+      000226 FE 02            [ 7]  531 	cp	a,#0x02
+      000228 28 05            [12]  532 	jr	Z, 00160$
+      00022A D6 03            [ 7]  533 	sub	a, #0x03
+      00022C C2rB4r02         [10]  534 	jp	NZ,00141$
+                                    535 ;Players/players.h:140: for(j=0; j<3; j++)
+      00022F                        536 00160$:
+      00022F DD 36 FE 00      [19]  537 	ld	-2 (ix), #0x00
+                                    538 ;Players/players.h:142: for(i=0; i<2; i++) {
+      000233                        539 00158$:
+      000233 DD 36 FF 00      [19]  540 	ld	-1 (ix), #0x00
+      000237                        541 00137$:
+                                    542 ;Players/players.h:143: SMS_addSprite(player_x+(i<<3), player_y+(j<<3), PLAYER1_SPRITE_POSITION + player_direction_offset + player_current_frame * PLAYER_LR_NUMBER_TILES_BY_FRAME + PLAYER_LR_NUMBER_TILES_FRAMES_BOTH_DIRECTIONS *j + i);
+      000237 3Ar04r00         [13]  543 	ld	a, (_player_x+0)
+      00023A 4F               [ 4]  544 	ld	c, a
+      00023B 06 00            [ 7]  545 	ld	b, #0x00
+      00023D DD 7E FF         [19]  546 	ld	a, -1 (ix)
+      000240 DD 77 FA         [19]  547 	ld	-6 (ix), a
+      000243 DD 36 FB 00      [19]  548 	ld	-5 (ix), #0x00
+      000247 E1               [10]  549 	pop	hl
+      000248 E5               [11]  550 	push	hl
+      000249 29               [11]  551 	add	hl, hl
+      00024A 29               [11]  552 	add	hl, hl
+      00024B 29               [11]  553 	add	hl, hl
+      00024C 09               [11]  554 	add	hl, bc
+                                    555 ;	spillPairReg hl
+                                    556 ;	spillPairReg hl
+      00024D 45               [ 4]  557 	ld	b, l
+      00024E 0E 00            [ 7]  558 	ld	c, #0x00
+      000250 3Ar08r00         [13]  559 	ld	a, (_player_direction_offset+0)
+      000253 16 00            [ 7]  560 	ld	d, #0x00
+      000255 5F               [ 4]  561 	ld	e, a
+      000256 14               [ 4]  562 	inc	d
+      000257 3Ar06r00         [13]  563 	ld	a, (_player_current_frame+0)
+      00025A 26 00            [ 7]  564 	ld	h, #0x00
+                                    565 ;	spillPairReg hl
+                                    566 ;	spillPairReg hl
+      00025C 6F               [ 4]  567 	ld	l, a
+      00025D 29               [11]  568 	add	hl, hl
+      00025E 19               [11]  569 	add	hl, de
+      00025F DD 75 FC         [19]  570 	ld	-4 (ix), l
+      000262 DD 74 FD         [19]  571 	ld	-3 (ix), h
+      000265 DD 5E FE         [19]  572 	ld	e, -2 (ix)
+      000268 16 00            [ 7]  573 	ld	d, #0x00
+      00026A D5               [11]  574 	push	de
+      00026B 6B               [ 4]  575 	ld	l, e
+      00026C 62               [ 4]  576 	ld	h, d
+      00026D 29               [11]  577 	add	hl, hl
+      00026E 19               [11]  578 	add	hl, de
+      00026F 29               [11]  579 	add	hl, hl
+      000270 29               [11]  580 	add	hl, hl
+      000271 29               [11]  581 	add	hl, hl
+      000272 D1               [10]  582 	pop	de
+      000273 7D               [ 4]  583 	ld	a, l
+      000274 DD 86 FC         [19]  584 	add	a, -4 (ix)
+      000277 6F               [ 4]  585 	ld	l, a
+                                    586 ;	spillPairReg hl
+                                    587 ;	spillPairReg hl
+      000278 7C               [ 4]  588 	ld	a, h
+      000279 DD 8E FD         [19]  589 	adc	a, -3 (ix)
+      00027C 67               [ 4]  590 	ld	h, a
+                                    591 ;	spillPairReg hl
+                                    592 ;	spillPairReg hl
+      00027D 7D               [ 4]  593 	ld	a, l
+      00027E DD 86 FA         [19]  594 	add	a, -6 (ix)
+      000281 6F               [ 4]  595 	ld	l, a
+                                    596 ;	spillPairReg hl
+                                    597 ;	spillPairReg hl
+      000282 7C               [ 4]  598 	ld	a, h
+      000283 DD 8E FB         [19]  599 	adc	a, -5 (ix)
+                                    600 ;	spillPairReg hl
+                                    601 ;	spillPairReg hl
+      000286 26 00            [ 7]  602 	ld	h, #0x00
+                                    603 ;	spillPairReg hl
+                                    604 ;	spillPairReg hl
+      000288 79               [ 4]  605 	ld	a, c
+      000289 B5               [ 4]  606 	or	a, l
+      00028A 4F               [ 4]  607 	ld	c, a
+      00028B 78               [ 4]  608 	ld	a, b
+      00028C B4               [ 4]  609 	or	a, h
+      00028D 47               [ 4]  610 	ld	b, a
+      00028E 3Ar05r00         [13]  611 	ld	a, (_player_y+0)
+      000291 6F               [ 4]  612 	ld	l, a
+                                    613 ;	spillPairReg hl
+                                    614 ;	spillPairReg hl
+      000292 26 00            [ 7]  615 	ld	h, #0x00
+                                    616 ;	spillPairReg hl
+                                    617 ;	spillPairReg hl
+      000294 EB               [ 4]  618 	ex	de, hl
+      000295 29               [11]  619 	add	hl, hl
+      000296 29               [11]  620 	add	hl, hl
+      000297 29               [11]  621 	add	hl, hl
+      000298 EB               [ 4]  622 	ex	de, hl
+      000299 19               [11]  623 	add	hl, de
+      00029A 59               [ 4]  624 	ld	e, c
+      00029B 50               [ 4]  625 	ld	d, b
+      00029C CDr00r00         [17]  626 	call	_SMS_addSprite_f
+                                    627 ;Players/players.h:142: for(i=0; i<2; i++) {
+      00029F DD 34 FF         [23]  628 	inc	-1 (ix)
+      0002A2 DD 7E FF         [19]  629 	ld	a, -1 (ix)
+      0002A5 D6 02            [ 7]  630 	sub	a, #0x02
+      0002A7 38 8E            [12]  631 	jr	C, 00137$
+                                    632 ;Players/players.h:140: for(j=0; j<3; j++)
+      0002A9 DD 34 FE         [23]  633 	inc	-2 (ix)
+      0002AC DD 7E FE         [19]  634 	ld	a, -2 (ix)
+      0002AF D6 03            [ 7]  635 	sub	a, #0x03
+      0002B1 DAr33r02         [10]  636 	jp	C, 00158$
+      0002B4                        637 00141$:
+                                    638 ;Players/players.h:147: }
+      0002B4 DD F9            [10]  639 	ld	sp, ix
+      0002B6 DD E1            [14]  640 	pop	ix
+      0002B8 C9               [10]  641 	ret
+                                    642 ;Tiles/tile.h:24: void Tile_Update(Tile* tile)
+                                    643 ;	---------------------------------
+                                    644 ; Function Tile_Update
+                                    645 ; ---------------------------------
+      0002B9                        646 _Tile_Update::
+      0002B9 DD E5            [15]  647 	push	ix
+      0002BB DD 21 00 00      [14]  648 	ld	ix,#0
+      0002BF DD 39            [15]  649 	add	ix,sp
+      0002C1 F5               [11]  650 	push	af
+      0002C2 4D               [ 4]  651 	ld	c, l
+      0002C3 44               [ 4]  652 	ld	b, h
+                                    653 ;Tiles/tile.h:26: tile->computedId = tile->id;
+      0002C4 21 06 00         [10]  654 	ld	hl, #0x0006
+      0002C7 09               [11]  655 	add	hl, bc
+      0002C8 E3               [19]  656 	ex	(sp), hl
+      0002C9 0A               [ 7]  657 	ld	a, (bc)
+      0002CA 5F               [ 4]  658 	ld	e, a
+      0002CB 16 00            [ 7]  659 	ld	d, #0x00
+      0002CD E1               [10]  660 	pop	hl
+      0002CE E5               [11]  661 	push	hl
+      0002CF 73               [ 7]  662 	ld	(hl), e
+      0002D0 23               [ 6]  663 	inc	hl
+      0002D1 72               [ 7]  664 	ld	(hl), d
+                                    665 ;Tiles/tile.h:28: if(tile->flipX)
+      0002D2 69               [ 4]  666 	ld	l, c
+                                    667 ;	spillPairReg hl
+                                    668 ;	spillPairReg hl
+      0002D3 60               [ 4]  669 	ld	h, b
+                                    670 ;	spillPairReg hl
+                                    671 ;	spillPairReg hl
+      0002D4 23               [ 6]  672 	inc	hl
+      0002D5 23               [ 6]  673 	inc	hl
+      0002D6 CB 46            [12]  674 	bit	0, (hl)
+      0002D8 28 0F            [12]  675 	jr	Z, 00102$
+                                    676 ;Tiles/tile.h:29: tile->computedId += TILE_FLIPPED_X;
+      0002DA E1               [10]  677 	pop	hl
+      0002DB E5               [11]  678 	push	hl
+      0002DC 5E               [ 7]  679 	ld	e, (hl)
+      0002DD 23               [ 6]  680 	inc	hl
+      0002DE 56               [ 7]  681 	ld	d, (hl)
+      0002DF 21 00 02         [10]  682 	ld	hl, #0x0200
+      0002E2 19               [11]  683 	add	hl, de
+      0002E3 EB               [ 4]  684 	ex	de, hl
+      0002E4 E1               [10]  685 	pop	hl
+      0002E5 E5               [11]  686 	push	hl
+      0002E6 73               [ 7]  687 	ld	(hl), e
+      0002E7 23               [ 6]  688 	inc	hl
+      0002E8 72               [ 7]  689 	ld	(hl), d
+      0002E9                        690 00102$:
+                                    691 ;Tiles/tile.h:31: if(tile->flipY)
+      0002E9 69               [ 4]  692 	ld	l, c
+                                    693 ;	spillPairReg hl
+                                    694 ;	spillPairReg hl
+      0002EA 60               [ 4]  695 	ld	h, b
+                                    696 ;	spillPairReg hl
+                                    697 ;	spillPairReg hl
+      0002EB 23               [ 6]  698 	inc	hl
+      0002EC 23               [ 6]  699 	inc	hl
+      0002ED 23               [ 6]  700 	inc	hl
+      0002EE CB 46            [12]  701 	bit	0, (hl)
+      0002F0 28 0F            [12]  702 	jr	Z, 00104$
+                                    703 ;Tiles/tile.h:32: tile->computedId += TILE_FLIPPED_Y;
+      0002F2 E1               [10]  704 	pop	hl
+      0002F3 E5               [11]  705 	push	hl
+      0002F4 5E               [ 7]  706 	ld	e, (hl)
+      0002F5 23               [ 6]  707 	inc	hl
+      0002F6 56               [ 7]  708 	ld	d, (hl)
+      0002F7 21 00 04         [10]  709 	ld	hl, #0x0400
+      0002FA 19               [11]  710 	add	hl, de
+      0002FB EB               [ 4]  711 	ex	de, hl
+      0002FC E1               [10]  712 	pop	hl
+      0002FD E5               [11]  713 	push	hl
+      0002FE 73               [ 7]  714 	ld	(hl), e
+      0002FF 23               [ 6]  715 	inc	hl
+      000300 72               [ 7]  716 	ld	(hl), d
+      000301                        717 00104$:
+                                    718 ;Tiles/tile.h:34: if(tile->useSpritePalette)
+      000301 C5               [11]  719 	push	bc
+      000302 FD E1            [14]  720 	pop	iy
+      000304 FD 5E 04         [19]  721 	ld	e, 4 (iy)
+      000307 CB 43            [ 8]  722 	bit	0, e
+      000309 28 0F            [12]  723 	jr	Z, 00106$
+                                    724 ;Tiles/tile.h:35: tile->computedId += TILE_USE_SPRITE_PALETTE;
+      00030B E1               [10]  725 	pop	hl
+      00030C E5               [11]  726 	push	hl
+      00030D 5E               [ 7]  727 	ld	e, (hl)
+      00030E 23               [ 6]  728 	inc	hl
+      00030F 56               [ 7]  729 	ld	d, (hl)
+      000310 21 00 08         [10]  730 	ld	hl, #0x0800
+      000313 19               [11]  731 	add	hl, de
+      000314 EB               [ 4]  732 	ex	de, hl
+      000315 E1               [10]  733 	pop	hl
+      000316 E5               [11]  734 	push	hl
+      000317 73               [ 7]  735 	ld	(hl), e
+      000318 23               [ 6]  736 	inc	hl
+      000319 72               [ 7]  737 	ld	(hl), d
+      00031A                        738 00106$:
+                                    739 ;Tiles/tile.h:37: if(tile->priority)
+      00031A 21 05 00         [10]  740 	ld	hl, #5
+      00031D 09               [11]  741 	add	hl, bc
+      00031E CB 46            [12]  742 	bit	0, (hl)
+      000320 28 0F            [12]  743 	jr	Z, 00109$
+                                    744 ;Tiles/tile.h:38: tile->computedId += TILE_PRIORITY;
+      000322 E1               [10]  745 	pop	hl
+      000323 E5               [11]  746 	push	hl
+      000324 4E               [ 7]  747 	ld	c, (hl)
+      000325 23               [ 6]  748 	inc	hl
+      000326 46               [ 7]  749 	ld	b, (hl)
+      000327 21 00 10         [10]  750 	ld	hl, #0x1000
+      00032A 09               [11]  751 	add	hl, bc
+      00032B EB               [ 4]  752 	ex	de, hl
+      00032C E1               [10]  753 	pop	hl
+      00032D E5               [11]  754 	push	hl
+      00032E 73               [ 7]  755 	ld	(hl), e
+      00032F 23               [ 6]  756 	inc	hl
+      000330 72               [ 7]  757 	ld	(hl), d
+      000331                        758 00109$:
+                                    759 ;Tiles/tile.h:39: }
+      000331 DD F9            [10]  760 	ld	sp, ix
+      000333 DD E1            [14]  761 	pop	ix
+      000335 C9               [10]  762 	ret
+                                    763 ;Tiles/tile.h:41: Tile* CreateTile
+                                    764 ;	---------------------------------
+                                    765 ; Function CreateTile
+                                    766 ; ---------------------------------
+      000336                        767 _CreateTile::
+      000336 DD E5            [15]  768 	push	ix
+      000338 DD 21 00 00      [14]  769 	ld	ix,#0
+      00033C DD 39            [15]  770 	add	ix,sp
+      00033E 47               [ 4]  771 	ld	b, a
+      00033F 4D               [ 4]  772 	ld	c, l
+                                    773 ;Tiles/tile.h:50: struct Tile *tile = malloc(sizeof (struct Tile));
+      000340 C5               [11]  774 	push	bc
+      000341 21 08 00         [10]  775 	ld	hl, #0x0008
+      000344 CDr00r00         [17]  776 	call	_malloc
+      000347 C1               [10]  777 	pop	bc
+                                    778 ;Tiles/tile.h:51: tile->id = id;
+      000348 78               [ 4]  779 	ld	a, b
+      000349 12               [ 7]  780 	ld	(de), a
+                                    781 ;Tiles/tile.h:52: tile->collidable = collidable;
+      00034A 6B               [ 4]  782 	ld	l, e
+                                    783 ;	spillPairReg hl
+                                    784 ;	spillPairReg hl
+      00034B 62               [ 4]  785 	ld	h, d
+                                    786 ;	spillPairReg hl
+                                    787 ;	spillPairReg hl
+      00034C 23               [ 6]  788 	inc	hl
+      00034D 71               [ 7]  789 	ld	(hl), c
+                                    790 ;Tiles/tile.h:53: tile->flipX = flipX;
+      00034E 4B               [ 4]  791 	ld	c, e
+      00034F 42               [ 4]  792 	ld	b, d
+      000350 03               [ 6]  793 	inc	bc
+      000351 03               [ 6]  794 	inc	bc
+      000352 DD 7E 04         [19]  795 	ld	a, 4 (ix)
+      000355 02               [ 7]  796 	ld	(bc), a
+                                    797 ;Tiles/tile.h:54: tile->flipY = flipY;
+      000356 4B               [ 4]  798 	ld	c, e
+      000357 42               [ 4]  799 	ld	b, d
+      000358 03               [ 6]  800 	inc	bc
+      000359 03               [ 6]  801 	inc	bc
+      00035A 03               [ 6]  802 	inc	bc
+      00035B DD 7E 05         [19]  803 	ld	a, 5 (ix)
+      00035E 02               [ 7]  804 	ld	(bc), a
+                                    805 ;Tiles/tile.h:55: tile->useSpritePalette = useSpritePalette;
+      00035F 21 04 00         [10]  806 	ld	hl, #0x0004
+      000362 19               [11]  807 	add	hl, de
+      000363 DD 7E 06         [19]  808 	ld	a, 6 (ix)
+      000366 77               [ 7]  809 	ld	(hl), a
+                                    810 ;Tiles/tile.h:56: tile->priority = priority;
+      000367 21 05 00         [10]  811 	ld	hl, #0x0005
+      00036A 19               [11]  812 	add	hl, de
+      00036B DD 7E 07         [19]  813 	ld	a, 7 (ix)
+      00036E 77               [ 7]  814 	ld	(hl), a
+                                    815 ;Tiles/tile.h:58: Tile_Update(tile);
+                                    816 ;	spillPairReg hl
+                                    817 ;	spillPairReg hl
+      00036F EB               [ 4]  818 	ex	de, hl
+      000370 E5               [11]  819 	push	hl
+                                    820 ;	spillPairReg hl
+                                    821 ;	spillPairReg hl
+      000371 CDrB9r02         [17]  822 	call	_Tile_Update
+      000374 D1               [10]  823 	pop	de
+                                    824 ;Tiles/tile.h:60: if (tile == NULL)
+      000375 7A               [ 4]  825 	ld	a, d
+      000376 B3               [ 4]  826 	or	a, e
+      000377 20 03            [12]  827 	jr	NZ, 00102$
+                                    828 ;Tiles/tile.h:61: return NULL;
+      000379 11 00 00         [10]  829 	ld	de, #0x0000
+                                    830 ;Tiles/tile.h:63: return tile;
+      00037C                        831 00102$:
+                                    832 ;Tiles/tile.h:64: }
+      00037C DD E1            [14]  833 	pop	ix
+      00037E E1               [10]  834 	pop	hl
+      00037F F1               [10]  835 	pop	af
+      000380 F1               [10]  836 	pop	af
+      000381 E9               [ 4]  837 	jp	(hl)
+                                    838 ;Tiles/tile.h:66: void DeleteTile(Tile *tile)
+                                    839 ;	---------------------------------
+                                    840 ; Function DeleteTile
+                                    841 ; ---------------------------------
+      000382                        842 _DeleteTile::
+                                    843 ;Tiles/tile.h:68: if(tile != NULL)
+      000382 7C               [ 4]  844 	ld	a, h
+      000383 B5               [ 4]  845 	or	a, l
+                                    846 ;Tiles/tile.h:69: free(tile);
+      000384 C2r00r00         [10]  847 	jp	NZ,_free
+                                    848 ;Tiles/tile.h:70: }
+      000387 C9               [10]  849 	ret
+                                    850 ;Tiles/metatile.h:14: MetaTile* MetaTile_Create
+                                    851 ;	---------------------------------
+                                    852 ; Function MetaTile_Create
+                                    853 ; ---------------------------------
+      000388                        854 _MetaTile_Create::
+      000388 DD E5            [15]  855 	push	ix
+      00038A DD 21 00 00      [14]  856 	ld	ix,#0
+      00038E DD 39            [15]  857 	add	ix,sp
+      000390 F5               [11]  858 	push	af
+      000391 F5               [11]  859 	push	af
+      000392 3B               [ 6]  860 	dec	sp
+      000393 DD 75 FD         [19]  861 	ld	-3 (ix), l
+      000396 DD 74 FE         [19]  862 	ld	-2 (ix), h
+                                    863 ;Tiles/metatile.h:29: MetaTile* metatile = malloc(sizeof (struct MetaTile));
+      000399 21 83 00         [10]  864 	ld	hl, #0x0083
+      00039C CDr00r00         [17]  865 	call	_malloc
+                                    866 ;Tiles/metatile.h:30: metatile->numTilesX = numTilesX;
+      00039F 21 81 00         [10]  867 	ld	hl, #0x0081
+      0003A2 19               [11]  868 	add	hl, de
+      0003A3 DD 7E 05         [19]  869 	ld	a, 5 (ix)
+      0003A6 77               [ 7]  870 	ld	(hl), a
+                                    871 ;Tiles/metatile.h:31: metatile->numTilesY = numTilesY;
+      0003A7 21 82 00         [10]  872 	ld	hl, #0x0082
+      0003AA 19               [11]  873 	add	hl, de
+      0003AB DD 7E 06         [19]  874 	ld	a, 6 (ix)
+      0003AE 77               [ 7]  875 	ld	(hl), a
+                                    876 ;Tiles/metatile.h:32: metatile->numTiles = numTiles;
+      0003AF 21 80 00         [10]  877 	ld	hl, #0x0080
+      0003B2 19               [11]  878 	add	hl, de
+      0003B3 4D               [ 4]  879 	ld	c, l
+      0003B4 44               [ 4]  880 	ld	b, h
+      0003B5 DD 7E 04         [19]  881 	ld	a, 4 (ix)
+      0003B8 02               [ 7]  882 	ld	(bc), a
+                                    883 ;Tiles/metatile.h:35: for(i = 0; i < metatile->numTiles; ++i)
+      0003B9 DD 36 FF 00      [19]  884 	ld	-1 (ix), #0x00
+      0003BD                        885 00103$:
+      0003BD 0A               [ 7]  886 	ld	a, (bc)
+      0003BE 6F               [ 4]  887 	ld	l, a
+                                    888 ;	spillPairReg hl
+                                    889 ;	spillPairReg hl
+      0003BF DD 7E FF         [19]  890 	ld	a, -1 (ix)
+      0003C2 95               [ 4]  891 	sub	a, l
+      0003C3 30 32            [12]  892 	jr	NC, 00101$
+                                    893 ;Tiles/metatile.h:37: metatile->tiles[i] = tiles[i];
+      0003C5 DD 7E FF         [19]  894 	ld	a, -1 (ix)
+      0003C8 87               [ 4]  895 	add	a, a
+      0003C9 87               [ 4]  896 	add	a, a
+      0003CA 87               [ 4]  897 	add	a, a
+      0003CB 6F               [ 4]  898 	ld	l, a
+      0003CC 26 00            [ 7]  899 	ld	h, #0x00
+      0003CE 19               [11]  900 	add	hl, de
+      0003CF E3               [19]  901 	ex	(sp), hl
+      0003D0 DD 6E FF         [19]  902 	ld	l, -1 (ix)
+                                    903 ;	spillPairReg hl
+                                    904 ;	spillPairReg hl
+      0003D3 26 00            [ 7]  905 	ld	h, #0x00
+                                    906 ;	spillPairReg hl
+                                    907 ;	spillPairReg hl
+      0003D5 29               [11]  908 	add	hl, hl
+      0003D6 29               [11]  909 	add	hl, hl
+      0003D7 29               [11]  910 	add	hl, hl
+      0003D8 7D               [ 4]  911 	ld	a, l
+      0003D9 DD 86 FD         [19]  912 	add	a, -3 (ix)
+      0003DC 6F               [ 4]  913 	ld	l, a
+                                    914 ;	spillPairReg hl
+                                    915 ;	spillPairReg hl
+      0003DD 7C               [ 4]  916 	ld	a, h
+      0003DE DD 8E FE         [19]  917 	adc	a, -2 (ix)
+      0003E1 67               [ 4]  918 	ld	h, a
+                                    919 ;	spillPairReg hl
+                                    920 ;	spillPairReg hl
+      0003E2 D5               [11]  921 	push	de
+      0003E3 C5               [11]  922 	push	bc
+      0003E4 DD 5E FB         [19]  923 	ld	e, -5 (ix)
+      0003E7 DD 56 FC         [19]  924 	ld	d, -4 (ix)
+      0003EA 01 08 00         [10]  925 	ld	bc, #0x0008
+      0003ED ED B0            [21]  926 	ldir
+      0003EF C1               [10]  927 	pop	bc
+      0003F0 D1               [10]  928 	pop	de
+                                    929 ;Tiles/metatile.h:35: for(i = 0; i < metatile->numTiles; ++i)
+      0003F1 DD 34 FF         [23]  930 	inc	-1 (ix)
+      0003F4 C3rBDr03         [10]  931 	jp	00103$
+      0003F7                        932 00101$:
+                                    933 ;Tiles/metatile.h:40: return metatile;
+                                    934 ;Tiles/metatile.h:41: }
+      0003F7 DD F9            [10]  935 	ld	sp, ix
+      0003F9 DD E1            [14]  936 	pop	ix
+      0003FB E1               [10]  937 	pop	hl
+      0003FC F1               [10]  938 	pop	af
+      0003FD 33               [ 6]  939 	inc	sp
+      0003FE E9               [ 4]  940 	jp	(hl)
+                                    941 ;Tiles/metatile.h:43: void MetaTile_Draw
+                                    942 ;	---------------------------------
+                                    943 ; Function MetaTile_Draw
+                                    944 ; ---------------------------------
+      0003FF                        945 _MetaTile_Draw::
+      0003FF DD E5            [15]  946 	push	ix
+      000401 DD 21 00 00      [14]  947 	ld	ix,#0
+      000405 DD 39            [15]  948 	add	ix,sp
+      000407 FD 21 DE FF      [14]  949 	ld	iy, #-34
+      00040B FD 39            [15]  950 	add	iy, sp
+      00040D FD F9            [10]  951 	ld	sp, iy
+      00040F EB               [ 4]  952 	ex	de, hl
+                                    953 ;Tiles/metatile.h:50: unsigned char tilesXY = metatile->numTilesX;
+      000410 4B               [ 4]  954 	ld	c, e
+      000411 42               [ 4]  955 	ld	b, d
+      000412 21 81 00         [10]  956 	ld	hl, #129
+      000415 09               [11]  957 	add	hl, bc
+      000416 4E               [ 7]  958 	ld	c, (hl)
+                                    959 ;Tiles/metatile.h:53: for(i = 0; i < tilesXY; ++i)
+      000417 D5               [11]  960 	push	de
+      000418 FD E1            [14]  961 	pop	iy
+      00041A 06 00            [ 7]  962 	ld	b, #0x00
+      00041C                        963 00103$:
+      00041C 78               [ 4]  964 	ld	a, b
+      00041D 91               [ 4]  965 	sub	a, c
+      00041E 30 30            [12]  966 	jr	NC, 00101$
+                                    967 ;Tiles/metatile.h:55: tileIds[i] = metatile->tiles[0].computedId; // TODO: Not working correctly
+      000420 58               [ 4]  968 	ld	e, b
+      000421 16 00            [ 7]  969 	ld	d, #0x00
+      000423 EB               [ 4]  970 	ex	de, hl
+      000424 29               [11]  971 	add	hl, hl
+      000425 EB               [ 4]  972 	ex	de, hl
+      000426 D5               [11]  973 	push	de
+      000427 21 02 00         [10]  974 	ld	hl, #2
+      00042A 39               [11]  975 	add	hl, sp
+      00042B 19               [11]  976 	add	hl, de
+      00042C D1               [10]  977 	pop	de
+      00042D EB               [ 4]  978 	ex	de, hl
+      00042E FD 7E 06         [19]  979 	ld	a, 6 (iy)
+      000431 DD 77 FE         [19]  980 	ld	-2 (ix), a
+      000434 FD 7E 07         [19]  981 	ld	a, 7 (iy)
+      000437 DD 77 FF         [19]  982 	ld	-1 (ix), a
+      00043A 6B               [ 4]  983 	ld	l, e
+      00043B 62               [ 4]  984 	ld	h, d
+      00043C DD 7E FE         [19]  985 	ld	a, -2 (ix)
+      00043F 77               [ 7]  986 	ld	(hl), a
+      000440 23               [ 6]  987 	inc	hl
+      000441 DD 7E FF         [19]  988 	ld	a, -1 (ix)
+      000444 77               [ 7]  989 	ld	(hl), a
+                                    990 ;Tiles/metatile.h:56: tileIds[i] = 0x1011;
+      000445 3E 11            [ 7]  991 	ld	a, #0x11
+      000447 12               [ 7]  992 	ld	(de), a
+      000448 13               [ 6]  993 	inc	de
+      000449 3E 10            [ 7]  994 	ld	a, #0x10
+      00044B 12               [ 7]  995 	ld	(de), a
+                                    996 ;Tiles/metatile.h:53: for(i = 0; i < tilesXY; ++i)
+      00044C 04               [ 4]  997 	inc	b
+      00044D C3r1Cr04         [10]  998 	jp	00103$
+      000450                        999 00101$:
+                                   1000 ;Tiles/metatile.h:59: SMS_loadTileMapArea(x, y, tileIds, 2, 2);
+      000450 21 02 02         [10] 1001 	ld	hl, #0x202
+      000453 E5               [11] 1002 	push	hl
+      000454 21 02 00         [10] 1003 	ld	hl, #2
+      000457 39               [11] 1004 	add	hl, sp
+      000458 E5               [11] 1005 	push	hl
+      000459 DD 6E 05         [19] 1006 	ld	l, 5 (ix)
+                                   1007 ;	spillPairReg hl
+                                   1008 ;	spillPairReg hl
+      00045C DD 7E 04         [19] 1009 	ld	a, 4 (ix)
+      00045F CDr00r00         [17] 1010 	call	_SMS_loadTileMapArea
+                                   1011 ;Tiles/metatile.h:60: }
+      000462 DD F9            [10] 1012 	ld	sp, ix
+      000464 DD E1            [14] 1013 	pop	ix
+      000466 E1               [10] 1014 	pop	hl
+      000467 F1               [10] 1015 	pop	af
+      000468 E9               [ 4] 1016 	jp	(hl)
+                                   1017 ;Tiles/entity.h:12: Entity* Entity_Create(MetaTile* metatile[], unsigned char numFrames) 
+                                   1018 ;	---------------------------------
+                                   1019 ; Function Entity_Create
+                                   1020 ; ---------------------------------
+      000469                       1021 _Entity_Create::
+      000469 DD E5            [15] 1022 	push	ix
+      00046B DD 21 00 00      [14] 1023 	ld	ix,#0
+      00046F DD 39            [15] 1024 	add	ix,sp
+      000471 F5               [11] 1025 	push	af
+      000472 3B               [ 6] 1026 	dec	sp
+      000473 E3               [19] 1027 	ex	(sp), hl
+                                   1028 ;Tiles/entity.h:14: Entity* entity = malloc(sizeof(struct Entity));
+      000474 21 44 00         [10] 1029 	ld	hl, #0x0044
+      000477 CDr00r00         [17] 1030 	call	_malloc
+                                   1031 ;Tiles/entity.h:16: entity->currentFrame = 0;
+      00047A 21 42 00         [10] 1032 	ld	hl, #0x0042
+      00047D 19               [11] 1033 	add	hl, de
+      00047E AF               [ 4] 1034 	xor	a, a
+      00047F 77               [ 7] 1035 	ld	(hl), a
+      000480 23               [ 6] 1036 	inc	hl
+      000481 77               [ 7] 1037 	ld	(hl), a
+                                   1038 ;Tiles/entity.h:17: entity->frameRate = 30;
+      000482 21 40 00         [10] 1039 	ld	hl, #0x0040
+      000485 19               [11] 1040 	add	hl, de
+      000486 36 1E            [10] 1041 	ld	(hl), #0x1e
+                                   1042 ;Tiles/entity.h:18: entity->numFrames = numFrames;
+      000488 21 41 00         [10] 1043 	ld	hl, #0x0041
+      00048B 19               [11] 1044 	add	hl, de
+      00048C DD 7E 04         [19] 1045 	ld	a, 4 (ix)
+      00048F 77               [ 7] 1046 	ld	(hl), a
+                                   1047 ;Tiles/entity.h:22: for(i = 0; i < metatile[i]->numTiles; ++i)
+      000490 DD 36 FF 00      [19] 1048 	ld	-1 (ix), #0x00
+      000494                       1049 00103$:
+      000494 DD 6E FF         [19] 1050 	ld	l, -1 (ix)
+                                   1051 ;	spillPairReg hl
+                                   1052 ;	spillPairReg hl
+      000497 26 00            [ 7] 1053 	ld	h, #0x00
+                                   1054 ;	spillPairReg hl
+                                   1055 ;	spillPairReg hl
+      000499 29               [11] 1056 	add	hl, hl
+      00049A C1               [10] 1057 	pop	bc
+      00049B C5               [11] 1058 	push	bc
+      00049C 09               [11] 1059 	add	hl, bc
+      00049D 4E               [ 7] 1060 	ld	c, (hl)
+      00049E 23               [ 6] 1061 	inc	hl
+      00049F 46               [ 7] 1062 	ld	b, (hl)
+      0004A0 69               [ 4] 1063 	ld	l, c
+                                   1064 ;	spillPairReg hl
+                                   1065 ;	spillPairReg hl
+      0004A1 60               [ 4] 1066 	ld	h, b
+                                   1067 ;	spillPairReg hl
+                                   1068 ;	spillPairReg hl
+      0004A2 C5               [11] 1069 	push	bc
+      0004A3 01 80 00         [10] 1070 	ld	bc, #0x0080
+      0004A6 09               [11] 1071 	add	hl, bc
+      0004A7 C1               [10] 1072 	pop	bc
+                                   1073 ;	spillPairReg hl
+      0004A8 DD 7E FF         [19] 1074 	ld	a,-1 (ix)
+      0004AB 96               [ 7] 1075 	sub	a,(hl)
+      0004AC 30 11            [12] 1076 	jr	NC, 00101$
+                                   1077 ;Tiles/entity.h:24: entity->metatile[i] = metatile[i];
+      0004AE DD 7E FF         [19] 1078 	ld	a, -1 (ix)
+      0004B1 87               [ 4] 1079 	add	a, a
+      0004B2 6F               [ 4] 1080 	ld	l, a
+      0004B3 26 00            [ 7] 1081 	ld	h, #0x00
+      0004B5 19               [11] 1082 	add	hl, de
+      0004B6 71               [ 7] 1083 	ld	(hl), c
+      0004B7 23               [ 6] 1084 	inc	hl
+      0004B8 70               [ 7] 1085 	ld	(hl), b
+                                   1086 ;Tiles/entity.h:22: for(i = 0; i < metatile[i]->numTiles; ++i)
+      0004B9 DD 34 FF         [23] 1087 	inc	-1 (ix)
+      0004BC C3r94r04         [10] 1088 	jp	00103$
+      0004BF                       1089 00101$:
+                                   1090 ;Tiles/entity.h:27: return entity;
+                                   1091 ;Tiles/entity.h:28: }
+      0004BF DD F9            [10] 1092 	ld	sp, ix
+      0004C1 DD E1            [14] 1093 	pop	ix
+      0004C3 E1               [10] 1094 	pop	hl
+      0004C4 33               [ 6] 1095 	inc	sp
+      0004C5 E9               [ 4] 1096 	jp	(hl)
+                                   1097 ;Tiles/entity.h:30: void Entity_Delete(Entity* entity)
+                                   1098 ;	---------------------------------
+                                   1099 ; Function Entity_Delete
+                                   1100 ; ---------------------------------
+      0004C6                       1101 _Entity_Delete::
+                                   1102 ;Tiles/entity.h:32: if(entity != NULL)
+      0004C6 7C               [ 4] 1103 	ld	a, h
+      0004C7 B5               [ 4] 1104 	or	a, l
+                                   1105 ;Tiles/entity.h:33: free(entity);
+      0004C8 C2r00r00         [10] 1106 	jp	NZ,_free
+                                   1107 ;Tiles/entity.h:34: }
+      0004CB C9               [10] 1108 	ret
+                                   1109 ;Tiles/entity.h:36: void Entity_Update(Entity* entity, unsigned int time)
+                                   1110 ;	---------------------------------
+                                   1111 ; Function Entity_Update
+                                   1112 ; ---------------------------------
+      0004CC                       1113 _Entity_Update::
+      0004CC DD E5            [15] 1114 	push	ix
+      0004CE DD 21 00 00      [14] 1115 	ld	ix,#0
+      0004D2 DD 39            [15] 1116 	add	ix,sp
+      0004D4 F5               [11] 1117 	push	af
+      0004D5 E3               [19] 1118 	ex	(sp), hl
+      0004D6 4B               [ 4] 1119 	ld	c, e
+      0004D7 42               [ 4] 1120 	ld	b, d
+                                   1121 ;Tiles/entity.h:38: if((time % entity->frameRate) == 0)
+      0004D8 D1               [10] 1122 	pop	de
+      0004D9 D5               [11] 1123 	push	de
+      0004DA 21 40 00         [10] 1124 	ld	hl, #64
+      0004DD 19               [11] 1125 	add	hl, de
+      0004DE 5E               [ 7] 1126 	ld	e, (hl)
+      0004DF 16 00            [ 7] 1127 	ld	d, #0x00
+      0004E1 69               [ 4] 1128 	ld	l, c
+                                   1129 ;	spillPairReg hl
+                                   1130 ;	spillPairReg hl
+      0004E2 60               [ 4] 1131 	ld	h, b
+                                   1132 ;	spillPairReg hl
+                                   1133 ;	spillPairReg hl
+                                   1134 ;Tiles/entity.h:40: entity->currentFrame++;
+      0004E3 CDr00r00         [17] 1135 	call	__moduint
+      0004E6 DD 7E FE         [19] 1136 	ld	a, -2 (ix)
+      0004E9 C6 42            [ 7] 1137 	add	a, #0x42
+      0004EB 4F               [ 4] 1138 	ld	c, a
+      0004EC DD 7E FF         [19] 1139 	ld	a, -1 (ix)
+      0004EF CE 00            [ 7] 1140 	adc	a, #0x00
+      0004F1 47               [ 4] 1141 	ld	b, a
+                                   1142 ;Tiles/entity.h:38: if((time % entity->frameRate) == 0)
+      0004F2 7A               [ 4] 1143 	ld	a, d
+      0004F3 B3               [ 4] 1144 	or	a, e
+      0004F4 20 0B            [12] 1145 	jr	NZ, 00102$
+                                   1146 ;Tiles/entity.h:40: entity->currentFrame++;
+      0004F6 69               [ 4] 1147 	ld	l, c
+      0004F7 60               [ 4] 1148 	ld	h, b
+      0004F8 5E               [ 7] 1149 	ld	e, (hl)
+      0004F9 23               [ 6] 1150 	inc	hl
+      0004FA 56               [ 7] 1151 	ld	d, (hl)
+      0004FB 13               [ 6] 1152 	inc	de
+      0004FC 69               [ 4] 1153 	ld	l, c
+      0004FD 60               [ 4] 1154 	ld	h, b
+      0004FE 73               [ 7] 1155 	ld	(hl), e
+      0004FF 23               [ 6] 1156 	inc	hl
+      000500 72               [ 7] 1157 	ld	(hl), d
+      000501                       1158 00102$:
+                                   1159 ;Tiles/entity.h:43: if(entity->currentFrame > entity->numFrames)
+      000501 69               [ 4] 1160 	ld	l, c
+      000502 60               [ 4] 1161 	ld	h, b
+      000503 5E               [ 7] 1162 	ld	e, (hl)
+      000504 23               [ 6] 1163 	inc	hl
+      000505 56               [ 7] 1164 	ld	d, (hl)
+      000506 E1               [10] 1165 	pop	hl
+      000507 E5               [11] 1166 	push	hl
+      000508 C5               [11] 1167 	push	bc
+      000509 01 41 00         [10] 1168 	ld	bc, #0x0041
+      00050C 09               [11] 1169 	add	hl, bc
+      00050D C1               [10] 1170 	pop	bc
+      00050E 6E               [ 7] 1171 	ld	l, (hl)
+                                   1172 ;	spillPairReg hl
+                                   1173 ;	spillPairReg hl
+                                   1174 ;	spillPairReg hl
+      00050F AF               [ 4] 1175 	xor	a, a
+      000510 67               [ 4] 1176 	ld	h, a
+      000511 ED 52            [15] 1177 	sbc	hl, de
+      000513 30 04            [12] 1178 	jr	NC, 00105$
+                                   1179 ;Tiles/entity.h:45: entity->currentFrame = 0;
+      000515 AF               [ 4] 1180 	xor	a, a
+      000516 02               [ 7] 1181 	ld	(bc), a
+      000517 03               [ 6] 1182 	inc	bc
+      000518 02               [ 7] 1183 	ld	(bc), a
+      000519                       1184 00105$:
+                                   1185 ;Tiles/entity.h:47: }
+      000519 DD F9            [10] 1186 	ld	sp, ix
+      00051B DD E1            [14] 1187 	pop	ix
+      00051D C9               [10] 1188 	ret
+                                   1189 ;Tiles/entity.h:49: unsigned char Entity_GetCurrentFrame(Entity* entity)
+                                   1190 ;	---------------------------------
+                                   1191 ; Function Entity_GetCurrentFrame
+                                   1192 ; ---------------------------------
+      00051E                       1193 _Entity_GetCurrentFrame::
+                                   1194 ;Tiles/entity.h:51: return entity->currentFrame;
+      00051E 11 42 00         [10] 1195 	ld	de, #0x0042
+      000521 19               [11] 1196 	add	hl, de
+      000522 7E               [ 7] 1197 	ld	a, (hl)
+                                   1198 ;Tiles/entity.h:52: }
+      000523 C9               [10] 1199 	ret
+                                   1200 ;Tiles/entity.h:54: unsigned char Entity_GetFrameRate(Entity* entity)
+                                   1201 ;	---------------------------------
+                                   1202 ; Function Entity_GetFrameRate
+                                   1203 ; ---------------------------------
+      000524                       1204 _Entity_GetFrameRate::
+                                   1205 ;Tiles/entity.h:56: return entity->frameRate;
+      000524 11 40 00         [10] 1206 	ld	de, #0x0040
+      000527 19               [11] 1207 	add	hl, de
+      000528 7E               [ 7] 1208 	ld	a, (hl)
+                                   1209 ;Tiles/entity.h:57: }
+      000529 C9               [10] 1210 	ret
+                                   1211 ;Tiles/entity.h:59: void Entity_Draw
+                                   1212 ;	---------------------------------
+                                   1213 ; Function Entity_Draw
+                                   1214 ; ---------------------------------
+      00052A                       1215 _Entity_Draw::
+      00052A DD E5            [15] 1216 	push	ix
+      00052C DD 21 00 00      [14] 1217 	ld	ix,#0
+      000530 DD 39            [15] 1218 	add	ix,sp
+      000532 EB               [ 4] 1219 	ex	de, hl
+                                   1220 ;Tiles/entity.h:65: MetaTile_Draw(entity->metatile[entity->currentFrame], x, y);
+      000533 D5               [11] 1221 	push	de
+      000534 FD E1            [14] 1222 	pop	iy
+      000536 FD 6E 42         [19] 1223 	ld	l, 66 (iy)
+                                   1224 ;	spillPairReg hl
+      000539 FD 66 43         [19] 1225 	ld	h, 67 (iy)
+                                   1226 ;	spillPairReg hl
+      00053C 29               [11] 1227 	add	hl, hl
+      00053D 19               [11] 1228 	add	hl, de
+      00053E 4E               [ 7] 1229 	ld	c, (hl)
+      00053F 23               [ 6] 1230 	inc	hl
+      000540 66               [ 7] 1231 	ld	h, (hl)
+                                   1232 ;	spillPairReg hl
+      000541 DD 56 05         [19] 1233 	ld	d, 5 (ix)
+      000544 DD 5E 04         [19] 1234 	ld	e, 4 (ix)
+      000547 D5               [11] 1235 	push	de
+      000548 69               [ 4] 1236 	ld	l, c
+                                   1237 ;	spillPairReg hl
+                                   1238 ;	spillPairReg hl
+      000549 CDrFFr03         [17] 1239 	call	_MetaTile_Draw
+                                   1240 ;Tiles/entity.h:66: }
+      00054C DD E1            [14] 1241 	pop	ix
+      00054E E1               [10] 1242 	pop	hl
+      00054F F1               [10] 1243 	pop	af
+      000550 E9               [ 4] 1244 	jp	(hl)
+                                   1245 ;main.c:11: void loadGraphics2vram(void)
+                                   1246 ;	---------------------------------
+                                   1247 ; Function loadGraphics2vram
+                                   1248 ; ---------------------------------
+      000551                       1249 _loadGraphics2vram::
+      000551 DD E5            [15] 1250 	push	ix
+      000553 DD 21 00 00      [14] 1251 	ld	ix,#0
+      000557 DD 39            [15] 1252 	add	ix,sp
+      000559 21 BC FF         [10] 1253 	ld	hl, #-68
+      00055C 39               [11] 1254 	add	hl, sp
+      00055D F9               [ 6] 1255 	ld	sp, hl
+                                   1256 ;main.c:14: SMS_VRAMmemsetW(0, 0x0000, 0x4000);
+      00055E 21 00 40         [10] 1257 	ld	hl, #0x4000
+      000561 E5               [11] 1258 	push	hl
+      000562 11 00 00         [10] 1259 	ld	de, #0x0000
+      000565 65               [ 4] 1260 	ld	h, l
+      000566 CDr00r00         [17] 1261 	call	_SMS_VRAMmemsetW
+                                   1262 ;main.c:17: SMS_loadBGPalette(background_palette_bin);
+      000569 21r00r00         [10] 1263 	ld	hl, #_background_palette_bin
+      00056C CDr00r00         [17] 1264 	call	_SMS_loadBGPalette
+                                   1265 ;main.c:19: SMS_loadPSGaidencompressedTiles(backgroundtiles_psgcompr, 0);
+      00056F 11 00 40         [10] 1266 	ld	de, #0x4000
+      000572 21r00r00         [10] 1267 	ld	hl, #_backgroundtiles_psgcompr
+      000575 CDr00r00         [17] 1268 	call	_SMS_loadPSGaidencompressedTilesatAddr
+                                   1269 ;main.c:20: SMS_loadTileMap(0,0, backgroundtilemap_bin, backgroundtilemap_bin_size);
+      000578 21 00 06         [10] 1270 	ld	hl, #0x0600
+      00057B E5               [11] 1271 	push	hl
+      00057C 11r00r00         [10] 1272 	ld	de, #_backgroundtilemap_bin
+      00057F 26 78            [ 7] 1273 	ld	h, #0x78
+      000581 CDr00r00         [17] 1274 	call	_SMS_VRAMmemcpy
+                                   1275 ;main.c:24: SMS_loadPSGaidencompressedTiles(items_tiles_psgcompr, 18);
+      000584 11 40 42         [10] 1276 	ld	de, #0x4240
+      000587 21r00r00         [10] 1277 	ld	hl, #_items_tiles_psgcompr
+      00058A CDr00r00         [17] 1278 	call	_SMS_loadPSGaidencompressedTilesatAddr
+                                   1279 ;main.c:31: SMS_loadSpritePalette(spritepalette_bin);
+      00058D 21r00r00         [10] 1280 	ld	hl, #_spritepalette_bin
+      000590 CDr00r00         [17] 1281 	call	_SMS_loadSpritePalette
+                                   1282 ;main.c:32: SMS_loadTiles(spritetiles_down_bin, PLAYER1_SPRITE_POSITION, 32*6*6);
+      000593 21 80 04         [10] 1283 	ld	hl, #0x0480
+      000596 E5               [11] 1284 	push	hl
+      000597 11r00r00         [10] 1285 	ld	de, #_spritetiles_down_bin
+      00059A 21 00 60         [10] 1286 	ld	hl, #0x6000
+      00059D CDr00r00         [17] 1287 	call	_SMS_VRAMmemcpy
+                                   1288 ;main.c:36: Tile tilelist1[] = 
+      0005A0 DD 36 BC 0B      [19] 1289 	ld	-68 (ix), #0x0b
+      0005A4 DD 36 BD 00      [19] 1290 	ld	-67 (ix), #0x00
+      0005A8 DD 36 BE 00      [19] 1291 	ld	-66 (ix), #0x00
+      0005AC DD 36 BF 00      [19] 1292 	ld	-65 (ix), #0x00
+      0005B0 DD 36 C0 00      [19] 1293 	ld	-64 (ix), #0x00
+      0005B4 DD 36 C1 01      [19] 1294 	ld	-63 (ix), #0x01
+      0005B8 AF               [ 4] 1295 	xor	a, a
+      0005B9 DD 77 C2         [19] 1296 	ld	-62 (ix), a
+      0005BC DD 77 C3         [19] 1297 	ld	-61 (ix), a
+      0005BF DD 36 C4 0A      [19] 1298 	ld	-60 (ix), #0x0a
+      0005C3 DD 36 C5 00      [19] 1299 	ld	-59 (ix), #0x00
+      0005C7 DD 36 C6 00      [19] 1300 	ld	-58 (ix), #0x00
+      0005CB DD 36 C7 00      [19] 1301 	ld	-57 (ix), #0x00
+      0005CF DD 36 C8 00      [19] 1302 	ld	-56 (ix), #0x00
+      0005D3 DD 36 C9 01      [19] 1303 	ld	-55 (ix), #0x01
+      0005D7 AF               [ 4] 1304 	xor	a, a
+      0005D8 DD 77 CA         [19] 1305 	ld	-54 (ix), a
+      0005DB DD 77 CB         [19] 1306 	ld	-53 (ix), a
+      0005DE DD 36 CC 0B      [19] 1307 	ld	-52 (ix), #0x0b
+      0005E2 DD 36 CD 00      [19] 1308 	ld	-51 (ix), #0x00
+      0005E6 DD 36 CE 00      [19] 1309 	ld	-50 (ix), #0x00
+      0005EA DD 36 CF 00      [19] 1310 	ld	-49 (ix), #0x00
+      0005EE DD 36 D0 00      [19] 1311 	ld	-48 (ix), #0x00
+      0005F2 DD 36 D1 01      [19] 1312 	ld	-47 (ix), #0x01
+      0005F6 AF               [ 4] 1313 	xor	a, a
+      0005F7 DD 77 D2         [19] 1314 	ld	-46 (ix), a
+      0005FA DD 77 D3         [19] 1315 	ld	-45 (ix), a
+      0005FD DD 36 D4 0A      [19] 1316 	ld	-44 (ix), #0x0a
+      000601 DD 36 D5 00      [19] 1317 	ld	-43 (ix), #0x00
+      000605 DD 36 D6 00      [19] 1318 	ld	-42 (ix), #0x00
+      000609 DD 36 D7 00      [19] 1319 	ld	-41 (ix), #0x00
+      00060D DD 36 D8 00      [19] 1320 	ld	-40 (ix), #0x00
+      000611 DD 36 D9 01      [19] 1321 	ld	-39 (ix), #0x01
+      000615 AF               [ 4] 1322 	xor	a, a
+      000616 DD 77 DA         [19] 1323 	ld	-38 (ix), a
+      000619 DD 77 DB         [19] 1324 	ld	-37 (ix), a
+                                   1325 ;main.c:45: Tile tilelist2[] = 
+      00061C DD 36 DC 14      [19] 1326 	ld	-36 (ix), #0x14
+      000620 DD 36 DD 00      [19] 1327 	ld	-35 (ix), #0x00
+      000624 DD 36 DE 00      [19] 1328 	ld	-34 (ix), #0x00
+      000628 DD 36 DF 00      [19] 1329 	ld	-33 (ix), #0x00
+      00062C DD 36 E0 00      [19] 1330 	ld	-32 (ix), #0x00
+      000630 DD 36 E1 01      [19] 1331 	ld	-31 (ix), #0x01
+      000634 AF               [ 4] 1332 	xor	a, a
+      000635 DD 77 E2         [19] 1333 	ld	-30 (ix), a
+      000638 DD 77 E3         [19] 1334 	ld	-29 (ix), a
+      00063B DD 36 E4 15      [19] 1335 	ld	-28 (ix), #0x15
+      00063F DD 36 E5 00      [19] 1336 	ld	-27 (ix), #0x00
+      000643 DD 36 E6 00      [19] 1337 	ld	-26 (ix), #0x00
+      000647 DD 36 E7 00      [19] 1338 	ld	-25 (ix), #0x00
+      00064B DD 36 E8 00      [19] 1339 	ld	-24 (ix), #0x00
+      00064F DD 36 E9 01      [19] 1340 	ld	-23 (ix), #0x01
+      000653 AF               [ 4] 1341 	xor	a, a
+      000654 DD 77 EA         [19] 1342 	ld	-22 (ix), a
+      000657 DD 77 EB         [19] 1343 	ld	-21 (ix), a
+      00065A DD 36 EC 14      [19] 1344 	ld	-20 (ix), #0x14
+      00065E DD 36 ED 00      [19] 1345 	ld	-19 (ix), #0x00
+      000662 DD 36 EE 00      [19] 1346 	ld	-18 (ix), #0x00
+      000666 DD 36 EF 00      [19] 1347 	ld	-17 (ix), #0x00
+      00066A DD 36 F0 00      [19] 1348 	ld	-16 (ix), #0x00
+      00066E DD 36 F1 01      [19] 1349 	ld	-15 (ix), #0x01
+      000672 AF               [ 4] 1350 	xor	a, a
+      000673 DD 77 F2         [19] 1351 	ld	-14 (ix), a
+      000676 DD 77 F3         [19] 1352 	ld	-13 (ix), a
+      000679 DD 36 F4 15      [19] 1353 	ld	-12 (ix), #0x15
+      00067D DD 36 F5 00      [19] 1354 	ld	-11 (ix), #0x00
+      000681 DD 36 F6 00      [19] 1355 	ld	-10 (ix), #0x00
+      000685 DD 36 F7 00      [19] 1356 	ld	-9 (ix), #0x00
+      000689 DD 36 F8 00      [19] 1357 	ld	-8 (ix), #0x00
+      00068D DD 36 F9 01      [19] 1358 	ld	-7 (ix), #0x01
+      000691 AF               [ 4] 1359 	xor	a, a
+      000692 DD 77 FA         [19] 1360 	ld	-6 (ix), a
+      000695 DD 77 FB         [19] 1361 	ld	-5 (ix), a
+                                   1362 ;main.c:54: MetaTile* metatile1 = MetaTile_Create(tilelist1, 4, 2, 2);
+      000698 21 02 02         [10] 1363 	ld	hl, #0x202
+      00069B E5               [11] 1364 	push	hl
+      00069C 3E 04            [ 7] 1365 	ld	a, #0x04
+      00069E F5               [11] 1366 	push	af
+      00069F 33               [ 6] 1367 	inc	sp
+      0006A0 21 03 00         [10] 1368 	ld	hl, #3
+      0006A3 39               [11] 1369 	add	hl, sp
+      0006A4 CDr88r03         [17] 1370 	call	_MetaTile_Create
+                                   1371 ;main.c:55: MetaTile* metatile2 = MetaTile_Create(tilelist2, 4, 2, 2);
+      0006A7 D5               [11] 1372 	push	de
+      0006A8 21 02 02         [10] 1373 	ld	hl, #0x202
+      0006AB E5               [11] 1374 	push	hl
+      0006AC 3E 04            [ 7] 1375 	ld	a, #0x04
+      0006AE F5               [11] 1376 	push	af
+      0006AF 33               [ 6] 1377 	inc	sp
+      0006B0 21 25 00         [10] 1378 	ld	hl, #37
+      0006B3 39               [11] 1379 	add	hl, sp
+      0006B4 CDr88r03         [17] 1380 	call	_MetaTile_Create
+      0006B7 4B               [ 4] 1381 	ld	c, e
+      0006B8 42               [ 4] 1382 	ld	b, d
+      0006B9 D1               [10] 1383 	pop	de
+                                   1384 ;main.c:57: MetaTile* metatilelist[] = 
+      0006BA DD 73 FC         [19] 1385 	ld	-4 (ix), e
+      0006BD DD 72 FD         [19] 1386 	ld	-3 (ix), d
+      0006C0 DD 71 FE         [19] 1387 	ld	-2 (ix), c
+      0006C3 DD 70 FF         [19] 1388 	ld	-1 (ix), b
+                                   1389 ;main.c:63: entity = Entity_Create(metatilelist, 2);
+      0006C6 3E 02            [ 7] 1390 	ld	a, #0x02
+      0006C8 F5               [11] 1391 	push	af
+      0006C9 33               [ 6] 1392 	inc	sp
+      0006CA 21 41 00         [10] 1393 	ld	hl, #65
+      0006CD 39               [11] 1394 	add	hl, sp
+      0006CE CDr69r04         [17] 1395 	call	_Entity_Create
+      0006D1 ED 53r0Br00      [20] 1396 	ld	(_entity), de
+                                   1397 ;main.c:65: Entity_Draw(entity, 6, 6);
+      0006D5 21 06 06         [10] 1398 	ld	hl, #0x606
+      0006D8 E5               [11] 1399 	push	hl
+      0006D9 2Ar0Br00         [16] 1400 	ld	hl, (_entity)
+      0006DC CDr2Ar05         [17] 1401 	call	_Entity_Draw
+                                   1402 ;main.c:69: }
+      0006DF DD F9            [10] 1403 	ld	sp, ix
+      0006E1 DD E1            [14] 1404 	pop	ix
+      0006E3 C9               [10] 1405 	ret
+                                   1406 ;main.c:71: void main (void)
+                                   1407 ;	---------------------------------
+                                   1408 ; Function main
+                                   1409 ; ---------------------------------
+      0006E4                       1410 _main::
+                                   1411 ;main.c:73: frame_counter = 0;
+      0006E4 21r09r00         [10] 1412 	ld	hl, #_frame_counter
+      0006E7 36 00            [10] 1413 	ld	(hl), #0x00
+                                   1414 ;main.c:75: Player1Init();
+      0006E9 CDr44r00         [17] 1415 	call	_Player1Init
+                                   1416 ;main.c:76: InitConsole();
+      0006EC CDr01r00         [17] 1417 	call	_InitConsole
+                                   1418 ;main.c:78: loadGraphics2vram();
+      0006EF CDr51r05         [17] 1419 	call	_loadGraphics2vram
+                                   1420 ;main.c:79: SMS_displayOn();
+      0006F2 21 40 01         [10] 1421 	ld	hl, #0x0140
+      0006F5 CDr00r00         [17] 1422 	call	_SMS_VDPturnOnFeature
+                                   1423 ;main.c:81: PSGPlay(music_psg);
+      0006F8 21r00r00         [10] 1424 	ld	hl, #_music_psg
+      0006FB CDr00r00         [17] 1425 	call	_PSGPlay
+                                   1426 ;main.c:84: while(1)
+      0006FE                       1427 00111$:
+                                   1428 ;main.c:87: checkgamepause();
+      0006FE CDr1Er00         [17] 1429 	call	_checkgamepause
+                                   1430 ;main.c:89: if(gamepause==0)
+      000701 3Ar01r00         [13] 1431 	ld	a, (_gamepause+0)
+      000704 B7               [ 4] 1432 	or	a, a
+      000705 20 44            [12] 1433 	jr	NZ, 00108$
+                                   1434 ;main.c:91: frame_counter++;
+      000707 21r09r00         [10] 1435 	ld	hl, #_frame_counter
+      00070A 34               [11] 1436 	inc	(hl)
+                                   1437 ;main.c:93: if((frame_counter%64) == 0)
+      00070B 3Ar09r00         [13] 1438 	ld	a, (_frame_counter+0)
+      00070E E6 3F            [ 7] 1439 	and	a, #0x3f
+      000710 20 12            [12] 1440 	jr	NZ, 00104$
+                                   1441 ;main.c:95: volume_atenuation++;
+      000712 FD 21r0Ar00      [14] 1442 	ld	iy, #_volume_atenuation
+      000716 FD 34 00         [23] 1443 	inc	0 (iy)
+                                   1444 ;main.c:96: if(volume_atenuation > 15)
+      000719 3E 0F            [ 7] 1445 	ld	a, #0x0f
+      00071B FD 96 00         [19] 1446 	sub	a, 0 (iy)
+      00071E 30 04            [12] 1447 	jr	NC, 00104$
+                                   1448 ;main.c:98: volume_atenuation = 0;
+      000720 FD 36 00 00      [19] 1449 	ld	0 (iy), #0x00
+      000724                       1450 00104$:
+                                   1451 ;main.c:104: Entity_Update(entity, frame_counter);
+      000724 3Ar09r00         [13] 1452 	ld	a, (_frame_counter+0)
+      000727 5F               [ 4] 1453 	ld	e, a
+      000728 16 00            [ 7] 1454 	ld	d, #0x00
+      00072A 2Ar0Br00         [16] 1455 	ld	hl, (_entity)
+      00072D CDrCCr04         [17] 1456 	call	_Entity_Update
+                                   1457 ;main.c:107: SMS_initSprites();
+      000730 CDr00r00         [17] 1458 	call	_SMS_initSprites
+                                   1459 ;main.c:109: Player1Update(frame_counter);
+      000733 3Ar09r00         [13] 1460 	ld	a, (_frame_counter+0)
+      000736 CDr64r00         [17] 1461 	call	_Player1Update
+                                   1462 ;main.c:116: SMS_finalizeSprites();
+      000739 CDr00r00         [17] 1463 	call	_SMS_finalizeSprites
+                                   1464 ;main.c:117: SMS_waitForVBlank();
+      00073C CDr00r00         [17] 1465 	call	_SMS_waitForVBlank
+                                   1466 ;main.c:119: PSGFrame();
+      00073F CDr00r00         [17] 1467 	call	_PSGFrame
+                                   1468 ;main.c:120: PSGSFXFrame();
+      000742 CDr00r00         [17] 1469 	call	_PSGSFXFrame
+                                   1470 ;main.c:122: SMS_copySpritestoSAT();
+      000745 CDr00r00         [17] 1471 	call	_SMS_copySpritestoSAT
+      000748 C3rFEr06         [10] 1472 	jp	00111$
+      00074B                       1473 00108$:
+                                   1474 ;main.c:129: PSGFrame();
+      00074B CDr00r00         [17] 1475 	call	_PSGFrame
+                                   1476 ;main.c:131: if(PSGSFXGetStatus())
+      00074E CDr00r00         [17] 1477 	call	_PSGSFXGetStatus
+      000751 B7               [ 4] 1478 	or	a, a
+      000752 28 03            [12] 1479 	jr	Z, 00106$
+                                   1480 ;main.c:133: PSGSFXFrame();
+      000754 CDr00r00         [17] 1481 	call	_PSGSFXFrame
+      000757                       1482 00106$:
+                                   1483 ;main.c:137: SMS_waitForVBlank();
+      000757 CDr00r00         [17] 1484 	call	_SMS_waitForVBlank
+                                   1485 ;main.c:140: numinterrupts=0;
+      00075A 21r00r00         [10] 1486 	ld	hl, #_numinterrupts
+      00075D 36 00            [10] 1487 	ld	(hl), #0x00
+                                   1488 ;main.c:143: }
+      00075F C3rFEr06         [10] 1489 	jp	00111$
+                                   1490 	.area _CODE
+      000762                       1491 __str_0:
+      000762 47 61 72 79 20 50 61  1492 	.ascii "Gary Paluk"
+             6C 75 6B
+      00076C 00                    1493 	.db 0x00
+      00076D                       1494 __str_1:
+      00076D 4D 61 73 74 65 72 20  1495 	.ascii "Master Blaster"
+             42 6C 61 73 74 65 72
+      00077B 00                    1496 	.db 0x00
+      00077C                       1497 __str_2:
+      00077C 47 72 61 62 20 61 20  1498 	.ascii "Grab a friend and jump into endless bombastic fun!"
+             66 72 69 65 6E 64 20
+             61 6E 64 20 6A 75 6D
+             70 20 69 6E 74 6F 20
+             65 6E 64 6C 65 73 73
+             20 62 6F 6D 62 61 73
+             74 69 63 20 66 75 6E
+             21
+      0007AE 00                    1499 	.db 0x00
+                                   1500 	.area _INITIALIZER
+                                   1501 	.area _CABS (ABS)
+      007FF0                       1502 	.org 0x7FF0
+      007FF0                       1503 ___SMS__SEGA_signature:
+      007FF0 54                    1504 	.db #0x54	; 84	'T'
+      007FF1 4D                    1505 	.db #0x4d	; 77	'M'
+      007FF2 52                    1506 	.db #0x52	; 82	'R'
+      007FF3 20                    1507 	.db #0x20	; 32
+      007FF4 53                    1508 	.db #0x53	; 83	'S'
+      007FF5 45                    1509 	.db #0x45	; 69	'E'
+      007FF6 47                    1510 	.db #0x47	; 71	'G'
+      007FF7 41                    1511 	.db #0x41	; 65	'A'
+      007FF8 FF                    1512 	.db #0xff	; 255
+      007FF9 FF                    1513 	.db #0xff	; 255
+      007FFA FF                    1514 	.db #0xff	; 255
+      007FFB FF                    1515 	.db #0xff	; 255
+      007FFC 99                    1516 	.db #0x99	; 153
+      007FFD 99                    1517 	.db #0x99	; 153
+      007FFE 00                    1518 	.db #0x00	; 0
+      007FFF 4C                    1519 	.db #0x4c	; 76	'L'
+      007FD5                       1520 	.org 0x7FD5
+      007FD5                       1521 ___SMS__SDSC_author:
+      007FD5 47 61 72 79 20 50 61  1522 	.ascii "Gary Paluk"
+             6C 75 6B
+      007FDF 00                    1523 	.db 0x00
+      007FC6                       1524 	.org 0x7FC6
+      007FC6                       1525 ___SMS__SDSC_name:
+      007FC6 4D 61 73 74 65 72 20  1526 	.ascii "Master Blaster"
+             42 6C 61 73 74 65 72
+      007FD4 00                    1527 	.db 0x00
+      007F93                       1528 	.org 0x7F93
+      007F93                       1529 ___SMS__SDSC_descr:
+      007F93 47 72 61 62 20 61 20  1530 	.ascii "Grab a friend and jump into endless bombastic fun!"
+             66 72 69 65 6E 64 20
+             61 6E 64 20 6A 75 6D
+             70 20 69 6E 74 6F 20
+             65 6E 64 6C 65 73 73
+             20 62 6F 6D 62 61 73
+             74 69 63 20 66 75 6E
+             21
+      007FC5 00                    1531 	.db 0x00
+      007FE0                       1532 	.org 0x7FE0
+      007FE0                       1533 ___SMS__SDSC_signature:
+      007FE0 53                    1534 	.db #0x53	; 83	'S'
+      007FE1 44                    1535 	.db #0x44	; 68	'D'
+      007FE2 53                    1536 	.db #0x53	; 83	'S'
+      007FE3 43                    1537 	.db #0x43	; 67	'C'
+      007FE4 01                    1538 	.db #0x01	; 1
+      007FE5 00                    1539 	.db #0x00	; 0
+      007FE6 11                    1540 	.db #0x11	; 17
+      007FE7 07                    1541 	.db #0x07	; 7
+      007FE8 22                    1542 	.db #0x22	; 34
+      007FE9 20                    1543 	.db #0x20	; 32
+      007FEA D5                    1544 	.db #0xd5	; 213
+      007FEB 7F                    1545 	.db #0x7f	; 127
+      007FEC C6                    1546 	.db #0xc6	; 198
+      007FED 7F                    1547 	.db #0x7f	; 127
+      007FEE 93                    1548 	.db #0x93	; 147
+      007FEF 7F                    1549 	.db #0x7f	; 127

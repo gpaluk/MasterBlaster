@@ -1,0 +1,115 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000000 L
+  0 _CreateTile                                                    000336 GR
+  0 _DeleteTile                                                    000382 GR
+  0 _Entity_Create                                                 000469 GR
+  0 _Entity_Delete                                                 0004C6 GR
+  0 _Entity_Draw                                                   00052A GR
+  0 _Entity_GetCurrentFrame                                        00051E GR
+  0 _Entity_GetFrameRate                                           000524 GR
+  0 _Entity_Update                                                 0004CC GR
+  0 _InitConsole                                                   000001 GR
+  0 _InterruptHandler                                              000000 GR
+  0 _MetaTile_Create                                               000388 GR
+  0 _MetaTile_Draw                                                 0003FF GR
+    _PSGFrame                                                      ****** GX
+    _PSGPlay                                                       ****** GX
+    _PSGPlayNoRepeat                                               ****** GX
+    _PSGSFXFrame                                                   ****** GX
+    _PSGSFXGetStatus                                               ****** GX
+  0 _Player1Init                                                   000044 GR
+  0 _Player1Update                                                 000064 GR
+  0 _Player1UpdateDraw                                             00012F GR
+  0 _Player1UpdatePosition                                         00006E GR
+    _ROM_bank_to_be_mapped_on_slot0                             =  00FFFD G
+    _ROM_bank_to_be_mapped_on_slot1                             =  00FFFE G
+    _ROM_bank_to_be_mapped_on_slot2                             =  00FFFF G
+    _SMS_SRAM                                                   =  008000 G
+    _SMS_VDPturnOnFeature                                          ****** GX
+    _SMS_VRAMmemcpy                                                ****** GX
+    _SMS_VRAMmemsetW                                               ****** GX
+    _SMS_addSprite_f                                               ****** GX
+    _SMS_copySpritestoSAT                                          ****** GX
+    _SMS_finalizeSprites                                           ****** GX
+    _SMS_getKeysStatus                                             ****** GX
+    _SMS_init                                                      ****** GX
+    _SMS_initSprites                                               ****** GX
+    _SMS_loadBGPalette                                             ****** GX
+    _SMS_loadPSGaidencompressedTilesatAddr                         ****** GX
+    _SMS_loadSpritePalette                                         ****** GX
+    _SMS_loadTileMapArea                                           ****** GX
+    _SMS_queryPauseRequested                                       ****** GX
+    _SMS_resetPauseRequest                                         ****** GX
+    _SMS_setLineCounter                                            ****** GX
+    _SMS_setLineInterruptHandler                                   ****** GX
+    _SMS_waitForVBlank                                             ****** GX
+    _SRAM_bank_to_be_mapped_on_slot2                            =  00FFFC G
+  0 _Tile_Update                                                   0002B9 GR
+  A ___SMS__SDSC_author                                            007FD5 GR
+  C ___SMS__SDSC_descr                                             007F93 GR
+  B ___SMS__SDSC_name                                              007FC6 GR
+  D ___SMS__SDSC_signature                                         007FE0 GR
+  9 ___SMS__SEGA_signature                                         007FF0 GR
+    __moduint                                                      ****** GX
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+  0 __str_0                                                        000762 R
+  0 __str_1                                                        00076D R
+  0 __str_2                                                        00077C R
+    _background_palette_bin                                        ****** GX
+    _backgroundtilemap_bin                                         ****** GX
+    _backgroundtiles_psgcompr                                      ****** GX
+  0 _checkgamepause                                                00001E GR
+  1 _entity                                                        00000B GR
+  1 _frame_counter                                                 000009 GR
+    _free                                                          ****** GX
+  1 _gamepause                                                     000001 GR
+    _items_tiles_psgcompr                                          ****** GX
+  0 _loadGraphics2vram                                             000551 GR
+  0 _main                                                          0006E4 GR
+    _malloc                                                        ****** GX
+    _music_psg                                                     ****** GX
+  1 _numinterrupts                                                 000000 GR
+    _pause_psg                                                     ****** GX
+  1 _player_current_frame                                          000006 GR
+  1 _player_direction                                              000007 GR
+  1 _player_direction_offset                                       000008 GR
+  1 _player_x                                                      000004 GR
+  1 _player_y                                                      000005 GR
+  1 _sprite_size                                                   000002 GR
+    _spritepalette_bin                                             ****** GX
+    _spritetiles_down_bin                                          ****** GX
+    _spritetiles_lr_bin                                            ****** GX
+    _spritetiles_up_bin                                            ****** GX
+  1 _volume_atenuation                                             00000A GR
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size    7AF   flags    0
+   1 _DATA                                      size      D   flags    0
+   2 _INITIALIZED                               size      0   flags    0
+   3 _DABS                                      size      0   flags    8
+   4 _HOME                                      size      0   flags    0
+   5 _GSINIT                                    size      0   flags    0
+   6 _GSFINAL                                   size      0   flags    0
+   7 _INITIALIZER                               size      0   flags    0
+   8 _CABS                                      size      0   flags    8
+   9 _CABS0                                     size     10   flags    8
+   A _CABS1                                     size      B   flags    8
+   B _CABS2                                     size      F   flags    8
+   C _CABS3                                     size     33   flags    8
+   D _CABS4                                     size     10   flags    8
+
